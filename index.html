@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Tower Defense</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #eee;
+            overflow: hidden;
+        }
+
+        #game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 10px 15px;
+            background: #16213e;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .stat-icon {
+            font-size: 18px;
+        }
+
+        #game-container {
+            position: relative;
+            touch-action: none;
+        }
+
+        #game-canvas {
+            display: block;
+            background: #0f0f23;
+        }
+
+        #tower-panel {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            background: #16213e;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .tower-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #1a1a2e;
+            color: #eee;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 70px;
+        }
+
+        .tower-btn:hover {
+            border-color: #4a9eff;
+            background: #252545;
+        }
+
+        .tower-btn.selected {
+            border-color: #4a9eff;
+            background: #2a2a5a;
+            box-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
+        }
+
+        .tower-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .tower-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .tower-name {
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .tower-cost {
+            font-size: 10px;
+            color: #ffd700;
+        }
+
+        #wave-info {
+            text-align: center;
+            padding: 8px;
+            background: #16213e;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        #start-btn {
+            padding: 10px 30px;
+            font-size: 16px;
+            background: #4a9eff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #start-btn:hover {
+            background: #3a8eef;
+        }
+
+        #upgrade-panel {
+            display: none;
+            position: absolute;
+            background: #16213e;
+            border: 2px solid #4a9eff;
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 100;
+            min-width: 150px;
+        }
+
+        #upgrade-panel h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #4a9eff;
+        }
+
+        #upgrade-panel .info {
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #aaa;
+        }
+
+        .upgrade-btn {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #1a1a2e;
+            color: #eee;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .upgrade-btn:hover:not(:disabled) {
+            background: #2a2a5a;
+            border-color: #4a9eff;
+        }
+
+        .upgrade-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 200;
+        }
+
+        #game-over h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        #game-over .victory {
+            color: #4aff4a;
+        }
+
+        #game-over .defeat {
+            color: #ff4a4a;
+        }
+
+        #restart-btn {
+            padding: 10px 30px;
+            font-size: 16px;
+            background: #4a9eff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-header">
+        <div class="stat">
+            <span class="stat-icon">💰</span>
+            <span id="gold">100</span>
+        </div>
+        <div class="stat">
+            <span class="stat-icon">❤️</span>
+            <span id="lives">20</span>
+        </div>
+        <div class="stat">
+            <span class="stat-icon">🌊</span>
+            <span id="wave">0</span> / <span id="max-wave">10</span>
+        </div>
+        <div class="stat">
+            <span class="stat-icon">💀</span>
+            <span id="kills">0</span>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="upgrade-panel">
+            <h3 id="upgrade-title">タワー</h3>
+            <div id="upgrade-info" class="info"></div>
+            <button id="upgrade-btn" class="upgrade-btn">アップグレード</button>
+            <button id="sell-btn" class="upgrade-btn">売却</button>
+            <button id="close-panel" class="upgrade-btn">閉じる</button>
+        </div>
+        <div id="game-over">
+            <h2 id="result-text">GAME OVER</h2>
+            <p id="result-detail"></p>
+            <button id="restart-btn">もう一度プレイ</button>
+        </div>
+    </div>
+
+    <div id="tower-panel">
+        <div class="tower-btn" data-tower="basic">
+            <span class="tower-icon">🔫</span>
+            <span class="tower-name">ベーシック</span>
+            <span class="tower-cost">💰 50</span>
+        </div>
+        <div class="tower-btn" data-tower="rapid">
+            <span class="tower-icon">⚡</span>
+            <span class="tower-name">速射</span>
+            <span class="tower-cost">💰 75</span>
+        </div>
+        <div class="tower-btn" data-tower="splash">
+            <span class="tower-icon">💥</span>
+            <span class="tower-name">範囲</span>
+            <span class="tower-cost">💰 100</span>
+        </div>
+        <div class="tower-btn" data-tower="sniper">
+            <span class="tower-icon">🎯</span>
+            <span class="tower-name">スナイパー</span>
+            <span class="tower-cost">💰 125</span>
+        </div>
+        <div class="tower-btn" data-tower="slow">
+            <span class="tower-icon">❄️</span>
+            <span class="tower-name">スロー</span>
+            <span class="tower-cost">💰 80</span>
+        </div>
+    </div>
+
+    <div id="wave-info">
+        <button id="start-btn">ウェーブ開始</button>
+    </div>
+
+    <script>
+        // ============================================
+        // ゲーム設定
+        // ============================================
+        const CONFIG = {
+            GRID_SIZE: 40,
+            COLS: 12,
+            ROWS: 14,
+            TOWER_ZONE_START: 10, // タワー配置可能な行（10行目以降）
+            ENEMY_SPAWN_ROW: 0,
+            GOAL_ROW: 13,
+        };
+
+        // タワー定義
+        const TOWER_TYPES = {
+            basic: {
+                name: 'ベーシック',
+                cost: 50,
+                damage: 10,
+                range: 2.5,
+                fireRate: 1000,
+                color: '#4a9eff',
+                bulletColor: '#4a9eff',
+                bulletSpeed: 8,
+            },
+            rapid: {
+                name: '速射',
+                cost: 75,
+                damage: 5,
+                range: 2,
+                fireRate: 300,
+                color: '#ffef4a',
+                bulletColor: '#ffef4a',
+                bulletSpeed: 10,
+            },
+            splash: {
+                name: '範囲攻撃',
+                cost: 100,
+                damage: 15,
+                range: 2,
+                fireRate: 1500,
+                color: '#ff4a4a',
+                bulletColor: '#ff4a4a',
+                bulletSpeed: 6,
+                splash: 1.5,
+            },
+            sniper: {
+                name: 'スナイパー',
+                cost: 125,
+                damage: 50,
+                range: 5,
+                fireRate: 2000,
+                color: '#9b4aff',
+                bulletColor: '#9b4aff',
+                bulletSpeed: 15,
+            },
+            slow: {
+                name: 'スロー',
+                cost: 80,
+                damage: 3,
+                range: 2,
+                fireRate: 800,
+                color: '#4affff',
+                bulletColor: '#4affff',
+                bulletSpeed: 7,
+                slowEffect: 0.5,
+                slowDuration: 2000,
+            },
+        };
+
+        // 敵定義
+        const ENEMY_TYPES = {
+            normal: {
+                name: 'ノーマル',
+                hp: 30,
+                speed: 1,
+                reward: 10,
+                color: '#ff6b6b',
+                size: 12,
+            },
+            fast: {
+                name: 'スピード',
+                hp: 20,
+                speed: 2,
+                reward: 15,
+                color: '#ffd93d',
+                size: 10,
+            },
+            tank: {
+                name: 'タンク',
+                hp: 100,
+                speed: 0.5,
+                reward: 30,
+                color: '#6bcb77',
+                size: 16,
+            },
+            boss: {
+                name: 'ボス',
+                hp: 300,
+                speed: 0.3,
+                reward: 100,
+                color: '#9b59b6',
+                size: 22,
+            },
+            swarm: {
+                name: 'スウォーム',
+                hp: 10,
+                speed: 1.5,
+                reward: 5,
+                color: '#e67e22',
+                size: 8,
+            },
+        };
+
+        // ウェーブ定義（段階的に難しく）
+        const WAVES = [
+            // Wave 1: 超簡単、チュートリアル的
+            { enemies: [{ type: 'normal', count: 5, interval: 1500 }] },
+            // Wave 2: ノーマルが増える
+            { enemies: [{ type: 'normal', count: 8, interval: 1200 }] },
+            // Wave 3: スピード敵登場
+            { enemies: [
+                { type: 'normal', count: 5, interval: 1200 },
+                { type: 'fast', count: 3, interval: 800 }
+            ]},
+            // Wave 4: タンク登場
+            { enemies: [
+                { type: 'normal', count: 6, interval: 1000 },
+                { type: 'tank', count: 2, interval: 2000 }
+            ]},
+            // Wave 5: ミックス
+            { enemies: [
+                { type: 'fast', count: 8, interval: 600 },
+                { type: 'normal', count: 5, interval: 1000 }
+            ]},
+            // Wave 6: スウォーム登場
+            { enemies: [
+                { type: 'swarm', count: 15, interval: 400 },
+                { type: 'tank', count: 2, interval: 2500 }
+            ]},
+            // Wave 7: 本格的に難しく
+            { enemies: [
+                { type: 'normal', count: 10, interval: 800 },
+                { type: 'fast', count: 6, interval: 600 },
+                { type: 'tank', count: 3, interval: 2000 }
+            ]},
+            // Wave 8: 大量攻勢
+            { enemies: [
+                { type: 'swarm', count: 20, interval: 300 },
+                { type: 'fast', count: 10, interval: 500 }
+            ]},
+            // Wave 9: エリート混成
+            { enemies: [
+                { type: 'tank', count: 5, interval: 1500 },
+                { type: 'fast', count: 8, interval: 600 },
+                { type: 'normal', count: 8, interval: 800 }
+            ]},
+            // Wave 10: ボス戦
+            { enemies: [
+                { type: 'normal', count: 10, interval: 800 },
+                { type: 'tank', count: 3, interval: 2000 },
+                { type: 'boss', count: 1, interval: 5000 }
+            ]},
+        ];
+
+        // ============================================
+        // ゲーム状態
+        // ============================================
+        let canvas, ctx;
+        let gameState = {
+            gold: 100,
+            lives: 20,
+            wave: 0,
+            kills: 0,
+            selectedTower: null,
+            towers: [],
+            enemies: [],
+            bullets: [],
+            particles: [],
+            waveInProgress: false,
+            gameOver: false,
+            victory: false,
+            spawnQueue: [],
+            selectedPlacedTower: null,
+        };
+
+        // ============================================
+        // 初期化
+        // ============================================
+        function init() {
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
+
+            // キャンバスサイズ設定
+            canvas.width = CONFIG.COLS * CONFIG.GRID_SIZE;
+            canvas.height = CONFIG.ROWS * CONFIG.GRID_SIZE;
+
+            // イベントリスナー設定
+            setupEventListeners();
+
+            // UI更新
+            updateUI();
+
+            // ゲームループ開始
+            requestAnimationFrame(gameLoop);
+        }
+
+        function setupEventListeners() {
+            // タワー選択
+            document.querySelectorAll('.tower-btn').forEach(btn => {
+                btn.addEventListener('click', () => selectTower(btn.dataset.tower));
+            });
+
+            // キャンバスクリック（タワー配置）
+            canvas.addEventListener('click', handleCanvasClick);
+            canvas.addEventListener('touchstart', handleCanvasTouch);
+
+            // ウェーブ開始
+            document.getElementById('start-btn').addEventListener('click', startWave);
+
+            // アップグレードパネル
+            document.getElementById('upgrade-btn').addEventListener('click', upgradeTower);
+            document.getElementById('sell-btn').addEventListener('click', sellTower);
+            document.getElementById('close-panel').addEventListener('click', closeUpgradePanel);
+
+            // リスタート
+            document.getElementById('restart-btn').addEventListener('click', restartGame);
+        }
+
+        // ============================================
+        // タワー操作
+        // ============================================
+        function selectTower(type) {
+            const towerType = TOWER_TYPES[type];
+
+            // 選択解除
+            document.querySelectorAll('.tower-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            if (gameState.selectedTower === type) {
+                gameState.selectedTower = null;
+            } else {
+                gameState.selectedTower = type;
+                document.querySelector(`[data-tower="${type}"]`).classList.add('selected');
+            }
+
+            closeUpgradePanel();
+        }
+
+        function handleCanvasClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            handlePlacement(x, y);
+        }
+
+        function handleCanvasTouch(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            handlePlacement(x, y);
+        }
+
+        function handlePlacement(x, y) {
+            const col = Math.floor(x / CONFIG.GRID_SIZE);
+            const row = Math.floor(y / CONFIG.GRID_SIZE);
+
+            // 既存タワーをクリックした場合
+            const existingTower = gameState.towers.find(t => t.col === col && t.row === row);
+            if (existingTower) {
+                showUpgradePanel(existingTower, x, y);
+                return;
+            }
+
+            closeUpgradePanel();
+
+            // 新規タワー配置
+            if (!gameState.selectedTower) return;
+
+            const towerType = TOWER_TYPES[gameState.selectedTower];
+
+            // コスト確認
+            if (gameState.gold < towerType.cost) {
+                showMessage('ゴールドが足りません！');
+                return;
+            }
+
+            // 配置可能エリア確認（下部のみ）
+            if (row < CONFIG.TOWER_ZONE_START) {
+                showMessage('タワーは下部エリアにのみ配置できます');
+                return;
+            }
+
+            // タワー作成
+            const tower = {
+                type: gameState.selectedTower,
+                col: col,
+                row: row,
+                x: col * CONFIG.GRID_SIZE + CONFIG.GRID_SIZE / 2,
+                y: row * CONFIG.GRID_SIZE + CONFIG.GRID_SIZE / 2,
+                level: 1,
+                lastFire: 0,
+                ...towerType,
+            };
+
+            gameState.towers.push(tower);
+            gameState.gold -= towerType.cost;
+            updateUI();
+
+            // 選択解除
+            gameState.selectedTower = null;
+            document.querySelectorAll('.tower-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+        }
+
+        function showUpgradePanel(tower, x, y) {
+            gameState.selectedPlacedTower = tower;
+
+            const panel = document.getElementById('upgrade-panel');
+            const upgradeCost = Math.floor(tower.cost * tower.level * 0.75);
+            const sellPrice = Math.floor(tower.cost * tower.level * 0.5);
+
+            document.getElementById('upgrade-title').textContent = `${tower.name} Lv.${tower.level}`;
+            document.getElementById('upgrade-info').innerHTML = `
+                ダメージ: ${tower.damage}<br>
+                射程: ${tower.range}<br>
+                攻撃速度: ${(1000 / tower.fireRate).toFixed(1)}/秒
+            `;
+            document.getElementById('upgrade-btn').textContent = `アップグレード (💰${upgradeCost})`;
+            document.getElementById('upgrade-btn').disabled = gameState.gold < upgradeCost || tower.level >= 5;
+            document.getElementById('sell-btn').textContent = `売却 (💰${sellPrice})`;
+
+            // パネル位置調整
+            panel.style.display = 'block';
+            panel.style.left = Math.min(x, canvas.width - 160) + 'px';
+            panel.style.top = Math.min(y, canvas.height - 150) + 'px';
+        }
+
+        function closeUpgradePanel() {
+            document.getElementById('upgrade-panel').style.display = 'none';
+            gameState.selectedPlacedTower = null;
+        }
+
+        function upgradeTower() {
+            const tower = gameState.selectedPlacedTower;
+            if (!tower || tower.level >= 5) return;
+
+            const upgradeCost = Math.floor(tower.cost * tower.level * 0.75);
+            if (gameState.gold < upgradeCost) return;
+
+            gameState.gold -= upgradeCost;
+            tower.level++;
+            tower.damage = Math.floor(tower.damage * 1.4);
+            tower.range += 0.3;
+            tower.fireRate = Math.floor(tower.fireRate * 0.9);
+
+            updateUI();
+            showUpgradePanel(tower, tower.x, tower.y);
+        }
+
+        function sellTower() {
+            const tower = gameState.selectedPlacedTower;
+            if (!tower) return;
+
+            const sellPrice = Math.floor(tower.cost * tower.level * 0.5);
+            gameState.gold += sellPrice;
+
+            const index = gameState.towers.indexOf(tower);
+            if (index > -1) {
+                gameState.towers.splice(index, 1);
+            }
+
+            updateUI();
+            closeUpgradePanel();
+        }
+
+        // ============================================
+        // ウェーブ管理
+        // ============================================
+        function startWave() {
+            if (gameState.waveInProgress || gameState.gameOver) return;
+            if (gameState.wave >= WAVES.length) return;
+
+            gameState.waveInProgress = true;
+            gameState.wave++;
+            updateUI();
+
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('start-btn').textContent = 'ウェーブ進行中...';
+
+            // スポーンキュー作成
+            const waveData = WAVES[gameState.wave - 1];
+            gameState.spawnQueue = [];
+
+            let delay = 0;
+            waveData.enemies.forEach(group => {
+                for (let i = 0; i < group.count; i++) {
+                    gameState.spawnQueue.push({
+                        type: group.type,
+                        spawnTime: Date.now() + delay,
+                    });
+                    delay += group.interval;
+                }
+            });
+        }
+
+        function spawnEnemy(type) {
+            const enemyType = ENEMY_TYPES[type];
+            const col = Math.floor(Math.random() * CONFIG.COLS);
+
+            const enemy = {
+                type: type,
+                x: col * CONFIG.GRID_SIZE + CONFIG.GRID_SIZE / 2,
+                y: -CONFIG.GRID_SIZE / 2,
+                hp: enemyType.hp,
+                maxHp: enemyType.hp,
+                speed: enemyType.speed,
+                baseSpeed: enemyType.speed,
+                reward: enemyType.reward,
+                color: enemyType.color,
+                size: enemyType.size,
+                slowUntil: 0,
+            };
+
+            gameState.enemies.push(enemy);
+        }
+
+        // ============================================
+        // ゲームループ
+        // ============================================
+        function gameLoop(timestamp) {
+            if (gameState.gameOver) {
+                render();
+                return;
+            }
+
+            update(timestamp);
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update(timestamp) {
+            // 敵スポーン
+            const now = Date.now();
+            gameState.spawnQueue = gameState.spawnQueue.filter(spawn => {
+                if (now >= spawn.spawnTime) {
+                    spawnEnemy(spawn.type);
+                    return false;
+                }
+                return true;
+            });
+
+            // ウェーブ終了チェック
+            if (gameState.waveInProgress &&
+                gameState.spawnQueue.length === 0 &&
+                gameState.enemies.length === 0) {
+                gameState.waveInProgress = false;
+                document.getElementById('start-btn').disabled = false;
+
+                if (gameState.wave >= WAVES.length) {
+                    victory();
+                } else {
+                    document.getElementById('start-btn').textContent = `ウェーブ ${gameState.wave + 1} 開始`;
+                    // ウェーブクリアボーナス
+                    gameState.gold += 20 + gameState.wave * 5;
+                    updateUI();
+                }
+            }
+
+            // 敵の移動
+            gameState.enemies.forEach(enemy => {
+                // スロー効果チェック
+                if (now < enemy.slowUntil) {
+                    enemy.speed = enemy.baseSpeed * 0.5;
+                } else {
+                    enemy.speed = enemy.baseSpeed;
+                }
+
+                enemy.y += enemy.speed;
+
+                // ゴール到達
+                if (enemy.y >= canvas.height) {
+                    gameState.lives--;
+                    enemy.hp = 0;
+                    updateUI();
+
+                    if (gameState.lives <= 0) {
+                        gameOver();
+                    }
+                }
+            });
+
+            // 死んだ敵を除去
+            gameState.enemies = gameState.enemies.filter(e => e.hp > 0);
+
+            // タワーの攻撃
+            gameState.towers.forEach(tower => {
+                if (now - tower.lastFire < tower.fireRate) return;
+
+                // 射程内の敵を探す
+                let target = null;
+                let minDist = Infinity;
+
+                gameState.enemies.forEach(enemy => {
+                    const dx = enemy.x - tower.x;
+                    const dy = enemy.y - tower.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy) / CONFIG.GRID_SIZE;
+
+                    if (dist <= tower.range && dist < minDist) {
+                        minDist = dist;
+                        target = enemy;
+                    }
+                });
+
+                if (target) {
+                    tower.lastFire = now;
+
+                    // 弾を発射
+                    gameState.bullets.push({
+                        x: tower.x,
+                        y: tower.y,
+                        targetX: target.x,
+                        targetY: target.y,
+                        target: target,
+                        damage: tower.damage,
+                        speed: tower.bulletSpeed || 8,
+                        color: tower.bulletColor,
+                        splash: tower.splash,
+                        slowEffect: tower.slowEffect,
+                        slowDuration: tower.slowDuration,
+                    });
+                }
+            });
+
+            // 弾の移動
+            gameState.bullets = gameState.bullets.filter(bullet => {
+                const dx = bullet.target.x - bullet.x;
+                const dy = bullet.target.y - bullet.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 10 || bullet.target.hp <= 0) {
+                    // 命中
+                    if (bullet.target.hp > 0) {
+                        // ダメージ処理
+                        if (bullet.splash) {
+                            // 範囲攻撃
+                            gameState.enemies.forEach(enemy => {
+                                const edx = enemy.x - bullet.x;
+                                const edy = enemy.y - bullet.y;
+                                const edist = Math.sqrt(edx * edx + edy * edy) / CONFIG.GRID_SIZE;
+                                if (edist <= bullet.splash) {
+                                    dealDamage(enemy, bullet.damage * (1 - edist / bullet.splash * 0.5));
+                                }
+                            });
+                            // 爆発エフェクト
+                            createExplosion(bullet.x, bullet.y, bullet.color);
+                        } else {
+                            dealDamage(bullet.target, bullet.damage);
+
+                            // スロー効果
+                            if (bullet.slowEffect) {
+                                bullet.target.slowUntil = Date.now() + bullet.slowDuration;
+                            }
+                        }
+                    }
+                    return false;
+                }
+
+                // 移動
+                const vx = dx / dist * bullet.speed;
+                const vy = dy / dist * bullet.speed;
+                bullet.x += vx;
+                bullet.y += vy;
+
+                return true;
+            });
+
+            // パーティクル更新
+            gameState.particles = gameState.particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                p.vy += 0.1; // 重力
+                return p.life > 0;
+            });
+        }
+
+        function dealDamage(enemy, damage) {
+            enemy.hp -= damage;
+            if (enemy.hp <= 0) {
+                gameState.gold += enemy.reward;
+                gameState.kills++;
+                updateUI();
+
+                // 死亡エフェクト
+                for (let i = 0; i < 5; i++) {
+                    gameState.particles.push({
+                        x: enemy.x,
+                        y: enemy.y,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() - 0.5) * 4,
+                        color: enemy.color,
+                        size: 4,
+                        life: 20,
+                    });
+                }
+            }
+        }
+
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 10; i++) {
+                const angle = (Math.PI * 2 / 10) * i;
+                gameState.particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * 3,
+                    vy: Math.sin(angle) * 3,
+                    color: color,
+                    size: 5,
+                    life: 15,
+                });
+            }
+        }
+
+        // ============================================
+        // 描画
+        // ============================================
+        function render() {
+            // 背景クリア
+            ctx.fillStyle = '#0f0f23';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // グリッド描画
+            drawGrid();
+
+            // タワー配置可能エリア表示
+            ctx.fillStyle = 'rgba(74, 158, 255, 0.1)';
+            ctx.fillRect(0, CONFIG.TOWER_ZONE_START * CONFIG.GRID_SIZE,
+                        canvas.width, (CONFIG.ROWS - CONFIG.TOWER_ZONE_START) * CONFIG.GRID_SIZE);
+
+            // タワー射程表示（選択中）
+            if (gameState.selectedPlacedTower) {
+                const tower = gameState.selectedPlacedTower;
+                ctx.beginPath();
+                ctx.arc(tower.x, tower.y, tower.range * CONFIG.GRID_SIZE, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(74, 158, 255, 0.15)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(74, 158, 255, 0.5)';
+                ctx.stroke();
+            }
+
+            // タワー描画
+            gameState.towers.forEach(tower => {
+                drawTower(tower);
+            });
+
+            // 敵描画
+            gameState.enemies.forEach(enemy => {
+                drawEnemy(enemy);
+            });
+
+            // 弾描画
+            gameState.bullets.forEach(bullet => {
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = bullet.color;
+                ctx.fill();
+            });
+
+            // パーティクル描画
+            gameState.particles.forEach(p => {
+                ctx.globalAlpha = p.life / 20;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+
+            // ゴールライン
+            ctx.strokeStyle = '#ff4a4a';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - 5);
+            ctx.lineTo(canvas.width, canvas.height - 5);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.lineWidth = 1;
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = '#1a1a3a';
+            ctx.lineWidth = 1;
+
+            for (let x = 0; x <= CONFIG.COLS; x++) {
+                ctx.beginPath();
+                ctx.moveTo(x * CONFIG.GRID_SIZE, 0);
+                ctx.lineTo(x * CONFIG.GRID_SIZE, canvas.height);
+                ctx.stroke();
+            }
+
+            for (let y = 0; y <= CONFIG.ROWS; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, y * CONFIG.GRID_SIZE);
+                ctx.lineTo(canvas.width, y * CONFIG.GRID_SIZE);
+                ctx.stroke();
+            }
+
+            // タワーゾーン区切り線
+            ctx.strokeStyle = '#4a9eff44';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, CONFIG.TOWER_ZONE_START * CONFIG.GRID_SIZE);
+            ctx.lineTo(canvas.width, CONFIG.TOWER_ZONE_START * CONFIG.GRID_SIZE);
+            ctx.stroke();
+        }
+
+        function drawTower(tower) {
+            const x = tower.x;
+            const y = tower.y;
+            const size = CONFIG.GRID_SIZE * 0.35;
+
+            // 本体
+            ctx.fillStyle = tower.color;
+            ctx.beginPath();
+            ctx.moveTo(x, y - size);
+            ctx.lineTo(x + size, y + size);
+            ctx.lineTo(x - size, y + size);
+            ctx.closePath();
+            ctx.fill();
+
+            // レベル表示
+            if (tower.level > 1) {
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Lv${tower.level}`, x, y + size + 12);
+            }
+        }
+
+        function drawEnemy(enemy) {
+            // HP バー
+            const barWidth = enemy.size * 2;
+            const barHeight = 4;
+            const hpPercent = enemy.hp / enemy.maxHp;
+
+            ctx.fillStyle = '#333';
+            ctx.fillRect(enemy.x - barWidth / 2, enemy.y - enemy.size - 8, barWidth, barHeight);
+
+            ctx.fillStyle = hpPercent > 0.5 ? '#4aff4a' : hpPercent > 0.25 ? '#ffd700' : '#ff4a4a';
+            ctx.fillRect(enemy.x - barWidth / 2, enemy.y - enemy.size - 8, barWidth * hpPercent, barHeight);
+
+            // 本体（スロー中は色変更）
+            ctx.fillStyle = Date.now() < enemy.slowUntil ? '#4affff' : enemy.color;
+            ctx.beginPath();
+            ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 目（進行方向）
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(enemy.x - 3, enemy.y - 2, 2, 0, Math.PI * 2);
+            ctx.arc(enemy.x + 3, enemy.y - 2, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // ============================================
+        // UI更新
+        // ============================================
+        function updateUI() {
+            document.getElementById('gold').textContent = gameState.gold;
+            document.getElementById('lives').textContent = gameState.lives;
+            document.getElementById('wave').textContent = gameState.wave;
+            document.getElementById('max-wave').textContent = WAVES.length;
+            document.getElementById('kills').textContent = gameState.kills;
+
+            // タワーボタンの有効/無効
+            document.querySelectorAll('.tower-btn').forEach(btn => {
+                const type = btn.dataset.tower;
+                const cost = TOWER_TYPES[type].cost;
+                btn.classList.toggle('disabled', gameState.gold < cost);
+            });
+        }
+
+        function showMessage(text) {
+            // 簡易メッセージ表示（後で改善可能）
+            console.log(text);
+        }
+
+        function gameOver() {
+            gameState.gameOver = true;
+            document.getElementById('game-over').style.display = 'block';
+            document.getElementById('result-text').textContent = 'GAME OVER';
+            document.getElementById('result-text').className = 'defeat';
+            document.getElementById('result-detail').textContent =
+                `Wave ${gameState.wave} で敗北... 撃破数: ${gameState.kills}`;
+        }
+
+        function victory() {
+            gameState.gameOver = true;
+            gameState.victory = true;
+            document.getElementById('game-over').style.display = 'block';
+            document.getElementById('result-text').textContent = 'VICTORY!';
+            document.getElementById('result-text').className = 'victory';
+            document.getElementById('result-detail').textContent =
+                `全${WAVES.length}ウェーブクリア！ 撃破数: ${gameState.kills}`;
+        }
+
+        function restartGame() {
+            gameState = {
+                gold: 100,
+                lives: 20,
+                wave: 0,
+                kills: 0,
+                selectedTower: null,
+                towers: [],
+                enemies: [],
+                bullets: [],
+                particles: [],
+                waveInProgress: false,
+                gameOver: false,
+                victory: false,
+                spawnQueue: [],
+                selectedPlacedTower: null,
+            };
+
+            document.getElementById('game-over').style.display = 'none';
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('start-btn').textContent = 'ウェーブ 1 開始';
+            updateUI();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ============================================
+        // 起動
+        // ============================================
+        window.addEventListener('load', init);
+
+        // Service Worker登録（PWA化）
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.log('SW registration failed'));
+        }
+    </script>
+</body>
+</html>
