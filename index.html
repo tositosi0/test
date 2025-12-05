@@ -298,7 +298,7 @@
             <p style="color:#ff6b6b; font-size: 13px;">⚠️ 手持ちは最大6種類まで</p>
         </div>
         <button id="start-game-btn">🚀 START</button>
-        <div style="position:absolute; bottom:15px; right:15px; font-size:11px; color:#555;">v3.0.0</div>
+        <div style="position:absolute; bottom:15px; right:15px; font-size:11px; color:#555;">v3.1.0</div>
     </div>
 
     <div id="app">
@@ -307,6 +307,7 @@
             <div class="stat"><span class="stat-icon">❤️</span><span id="lives">20</span></div>
             <div class="stat"><span class="stat-icon">🌊</span><span id="wave">0</span>/<span id="max-wave">15</span></div>
             <div class="stat"><span class="stat-icon">💀</span><span id="kills">0</span></div>
+            <button id="bgm-toggle" style="padding: 4px 8px; font-size: 12px; border-radius: 15px;">🎵</button>
             <button id="sound-toggle" style="padding: 4px 8px; font-size: 12px; border-radius: 15px;">🔊</button>
         </div>
 
@@ -427,15 +428,109 @@
         let ambientParticles = []; // 環境パーティクル
         let audioCtx; // 音声コンテキスト
         let soundEnabled = true;
+        let bgmEnabled = true;
+        let bgmNodes = null; // BGMノード
 
         // 音声システム初期化
         function initAudio() {
             try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                startBGM();
             } catch (e) {
                 console.log('Audio not supported');
                 soundEnabled = false;
             }
+        }
+
+        // BGM生成・再生
+        function startBGM() {
+            if (!audioCtx || bgmNodes) return;
+
+            // マスターゲイン
+            const masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0.15;
+            masterGain.connect(audioCtx.destination);
+
+            // ベースドローン（低音の持続音）
+            const drone = audioCtx.createOscillator();
+            drone.type = 'sine';
+            drone.frequency.value = 55; // A1
+            const droneGain = audioCtx.createGain();
+            droneGain.gain.value = 0.3;
+            drone.connect(droneGain);
+            droneGain.connect(masterGain);
+            drone.start();
+
+            // パッド音（和音）
+            const padFreqs = [110, 165, 220]; // A2, E3, A3
+            const padOscs = padFreqs.map(freq => {
+                const osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                const gain = audioCtx.createGain();
+                gain.gain.value = 0.1;
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc.start();
+                return { osc, gain };
+            });
+
+            // アルペジオ（ゆっくり上下する音）
+            const arpOsc = audioCtx.createOscillator();
+            arpOsc.type = 'triangle';
+            arpOsc.frequency.value = 440;
+            const arpGain = audioCtx.createGain();
+            arpGain.gain.value = 0.08;
+            arpOsc.connect(arpGain);
+            arpGain.connect(masterGain);
+            arpOsc.start();
+
+            // アルペジオのパターン
+            const arpNotes = [220, 330, 440, 550, 440, 330];
+            let arpIndex = 0;
+            const arpInterval = setInterval(() => {
+                if (!bgmEnabled || !audioCtx) return;
+                arpOsc.frequency.setTargetAtTime(arpNotes[arpIndex], audioCtx.currentTime, 0.1);
+                arpIndex = (arpIndex + 1) % arpNotes.length;
+            }, 800);
+
+            // LFOでパッドを揺らす
+            const lfo = audioCtx.createOscillator();
+            lfo.type = 'sine';
+            lfo.frequency.value = 0.1;
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.value = 0.02;
+            lfo.connect(lfoGain);
+            padOscs.forEach(p => lfoGain.connect(p.gain.gain));
+            lfo.start();
+
+            bgmNodes = { masterGain, drone, droneGain, padOscs, arpOsc, arpGain, lfo, arpInterval };
+            updateBGMVolume();
+        }
+
+        function stopBGM() {
+            if (!bgmNodes) return;
+            clearInterval(bgmNodes.arpInterval);
+            bgmNodes.drone.stop();
+            bgmNodes.arpOsc.stop();
+            bgmNodes.lfo.stop();
+            bgmNodes.padOscs.forEach(p => p.osc.stop());
+            bgmNodes = null;
+        }
+
+        function updateBGMVolume() {
+            if (!bgmNodes) return;
+            bgmNodes.masterGain.gain.setTargetAtTime(
+                bgmEnabled ? 0.15 : 0,
+                audioCtx.currentTime,
+                0.1
+            );
+        }
+
+        function toggleBGM() {
+            bgmEnabled = !bgmEnabled;
+            updateBGMVolume();
+            document.getElementById('bgm-toggle').textContent = bgmEnabled ? '🎵' : '🎵❌';
         }
 
         // 効果音生成
@@ -826,6 +921,8 @@
                 if (soundEnabled) playSound('button');
             });
 
+            document.getElementById('bgm-toggle').addEventListener('click', toggleBGM);
+
             updateTowerPanel();
             updateUI();
             requestAnimationFrame(gameLoop);
@@ -894,8 +991,27 @@
             document.getElementById('sell-btn').textContent = `売却(💰${sp})`;
 
             panel.style.display = 'block';
-            panel.style.left = Math.min(tower.x, canvas.width - 140) + 'px';
-            panel.style.top = Math.min(tower.y, canvas.height - 120) + 'px';
+
+            // パネルサイズ（概算）
+            const panelWidth = 150;
+            const panelHeight = 130;
+
+            // X位置: 左右にはみ出さないように
+            let panelX = tower.x + 20;
+            if (panelX + panelWidth > canvas.width) {
+                panelX = tower.x - panelWidth - 20;
+            }
+            panelX = Math.max(5, panelX);
+
+            // Y位置: 下部にある場合は上に表示
+            let panelY = tower.y - 20;
+            if (panelY + panelHeight > canvas.height - 10) {
+                panelY = tower.y - panelHeight - 10;
+            }
+            panelY = Math.max(5, panelY);
+
+            panel.style.left = panelX + 'px';
+            panel.style.top = panelY + 'px';
         }
 
         function closeUpgradePanel() {
