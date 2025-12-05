@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tower-defense-v1';
+const CACHE_NAME = 'space-defense-v3';
 const urlsToCache = [
     '/',
     '/index.html',

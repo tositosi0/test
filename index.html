@@ -10,9 +10,10 @@
         html, body {
             height: 100%;
             overflow: hidden;
-            background: #1a1a2e;
-            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: #eee;
+            -webkit-tap-highlight-color: transparent;
         }
         #app {
             display: flex;
@@ -20,17 +21,31 @@
             height: 100%;
             max-width: 500px;
             margin: 0 auto;
+            box-shadow: 0 0 40px rgba(74, 158, 255, 0.15);
         }
         #game-header {
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 6px 10px;
-            background: #16213e;
+            padding: 8px 12px;
+            background: linear-gradient(180deg, rgba(30, 40, 60, 0.95) 0%, rgba(20, 30, 50, 0.98) 100%);
             flex-shrink: 0;
+            border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+            backdrop-filter: blur(10px);
         }
-        .stat { display: flex; align-items: center; gap: 3px; font-size: 12px; }
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
         .stat-icon { font-size: 14px; }
+        .stat span:last-child { min-width: 20px; text-align: center; }
         #game-container {
             flex: 1;
             position: relative;
@@ -45,172 +60,245 @@
         #tower-panel {
             display: flex;
             justify-content: center;
-            gap: 4px;
-            padding: 6px;
-            background: #16213e;
+            gap: 6px;
+            padding: 10px 8px;
+            background: linear-gradient(180deg, rgba(20, 30, 50, 0.98) 0%, rgba(15, 25, 45, 0.99) 100%);
             flex-shrink: 0;
             flex-wrap: wrap;
-            max-height: 80px;
+            max-height: 90px;
             overflow-y: auto;
+            border-top: 1px solid rgba(74, 158, 255, 0.15);
         }
         .tower-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 4px 6px;
-            border: 2px solid #333;
-            border-radius: 6px;
-            background: #1a1a2e;
+            padding: 6px 8px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(40, 50, 70, 0.8) 0%, rgba(25, 35, 55, 0.9) 100%);
             color: #eee;
             cursor: pointer;
-            min-width: 48px;
+            min-width: 52px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
-        .tower-btn.selected { border-color: #4a9eff; background: #2a2a5a; }
-        .tower-btn.disabled { opacity: 0.5; }
-        .tower-icon { font-size: 16px; }
-        .tower-name { font-size: 8px; font-weight: bold; }
-        .tower-cost { font-size: 7px; color: #ffd700; }
+        .tower-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3); }
+        .tower-btn.selected {
+            border-color: #4a9eff;
+            background: linear-gradient(180deg, rgba(74, 100, 140, 0.9) 0%, rgba(50, 70, 110, 0.95) 100%);
+            box-shadow: 0 0 15px rgba(74, 158, 255, 0.5);
+        }
+        .tower-btn.disabled { opacity: 0.4; transform: none; }
+        .tower-icon { font-size: 18px; margin-bottom: 2px; }
+        .tower-name { font-size: 9px; font-weight: 600; letter-spacing: 0.5px; }
+        .tower-cost { font-size: 8px; color: #ffd700; font-weight: 500; }
         #wave-info {
-            padding: 8px;
-            background: #16213e;
+            padding: 10px;
+            background: linear-gradient(180deg, rgba(15, 25, 45, 0.99) 0%, rgba(10, 20, 40, 1) 100%);
             text-align: center;
             flex-shrink: 0;
+            border-top: 1px solid rgba(74, 158, 255, 0.1);
         }
         #start-btn {
-            padding: 10px 25px;
-            font-size: 14px;
-            background: #4a9eff;
+            padding: 12px 30px;
+            font-size: 15px;
+            font-weight: 600;
+            background: linear-gradient(180deg, #5aafff 0%, #3a8fdf 100%);
             border: none;
-            border-radius: 6px;
+            border-radius: 25px;
             color: white;
             cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(74, 158, 255, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
-        #start-btn:disabled { opacity: 0.7; }
+        #start-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(74, 158, 255, 0.5); }
+        #start-btn:active { transform: scale(0.98); }
+        #start-btn:disabled { opacity: 0.6; transform: none; box-shadow: none; }
         #upgrade-panel {
             display: none;
             position: absolute;
-            background: #16213e;
-            border: 2px solid #4a9eff;
-            border-radius: 8px;
-            padding: 8px;
+            background: linear-gradient(180deg, rgba(30, 45, 70, 0.98) 0%, rgba(20, 35, 60, 0.99) 100%);
+            border: 1px solid rgba(74, 158, 255, 0.4);
+            border-radius: 12px;
+            padding: 12px;
             z-index: 100;
-            min-width: 130px;
+            min-width: 140px;
             font-size: 12px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
-        #upgrade-panel h3 { font-size: 12px; margin-bottom: 5px; color: #4a9eff; }
+        #upgrade-panel h3 { font-size: 13px; margin-bottom: 8px; color: #4a9eff; font-weight: 600; }
+        #upgrade-info { color: #aaa; margin-bottom: 8px; font-size: 11px; }
         .upgrade-btn {
             display: block;
             width: 100%;
-            padding: 6px;
-            margin: 3px 0;
-            border: 1px solid #444;
-            border-radius: 4px;
-            background: #1a1a2e;
+            padding: 8px;
+            margin: 4px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: linear-gradient(180deg, rgba(50, 60, 80, 0.8) 0%, rgba(35, 45, 65, 0.9) 100%);
             color: #eee;
             cursor: pointer;
             font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
-        .upgrade-btn:disabled { opacity: 0.5; }
+        .upgrade-btn:hover { background: linear-gradient(180deg, rgba(70, 80, 100, 0.9) 0%, rgba(50, 60, 80, 0.95) 100%); }
+        .upgrade-btn:disabled { opacity: 0.4; }
         #game-over, #weapon-select {
             display: none;
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95);
-            padding: 20px;
-            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(20, 30, 50, 0.98) 0%, rgba(10, 20, 40, 0.99) 100%);
+            padding: 25px;
+            border-radius: 16px;
             text-align: center;
             z-index: 200;
             max-width: 90%;
             max-height: 80%;
             overflow-y: auto;
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
         }
-        #game-over h2, #weapon-select h2 { font-size: 20px; margin-bottom: 10px; }
-        .victory { color: #4aff4a; }
-        .defeat { color: #ff4a4a; }
+        #game-over h2, #weapon-select h2 { font-size: 22px; margin-bottom: 12px; font-weight: 700; }
+        #result-detail { color: #aaa; margin-bottom: 15px; }
+        .victory { color: #4aff4a; text-shadow: 0 0 20px rgba(74, 255, 74, 0.5); }
+        .defeat { color: #ff4a4a; text-shadow: 0 0 20px rgba(255, 74, 74, 0.5); }
         #restart-btn {
-            padding: 10px 25px;
-            font-size: 14px;
-            background: #4a9eff;
+            padding: 12px 30px;
+            font-size: 15px;
+            font-weight: 600;
+            background: linear-gradient(180deg, #5aafff 0%, #3a8fdf 100%);
             border: none;
-            border-radius: 5px;
+            border-radius: 25px;
             color: white;
             cursor: pointer;
             margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(74, 158, 255, 0.4);
+            transition: all 0.2s ease;
         }
-        #weapon-select h2 { color: #ffd700; }
+        #restart-btn:hover { transform: scale(1.05); }
+        #weapon-select h2 { color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
         .weapon-choice {
             display: inline-flex;
             flex-direction: column;
             align-items: center;
-            padding: 6px 8px;
-            margin: 3px;
-            border: 2px solid #444;
-            border-radius: 6px;
-            background: #1a1a2e;
+            padding: 10px 12px;
+            margin: 5px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(50, 60, 80, 0.8) 0%, rgba(35, 45, 65, 0.9) 100%);
             cursor: pointer;
-            min-width: 50px;
-            transition: all 0.2s;
+            min-width: 60px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
-        .weapon-choice:hover { border-color: #4a9eff; background: #2a2a5a; }
-        .weapon-choice .icon { font-size: 18px; }
-        .weapon-choice .name { font-size: 9px; font-weight: bold; }
-        #weapon-choices { display: flex; flex-wrap: wrap; justify-content: center; }
-        #inventory-info { margin-top: 10px; font-size: 11px; color: #ff6b6b; }
-        #discard-section { margin-top: 15px; padding-top: 10px; border-top: 1px solid #444; }
-        #discard-section h3 { font-size: 12px; color: #ff6b6b; margin-bottom: 8px; }
+        .weapon-choice:hover {
+            border-color: #4a9eff;
+            background: linear-gradient(180deg, rgba(70, 90, 120, 0.9) 0%, rgba(50, 70, 100, 0.95) 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(74, 158, 255, 0.4);
+        }
+        .weapon-choice .icon { font-size: 24px; margin-bottom: 4px; }
+        .weapon-choice .name { font-size: 10px; font-weight: 600; }
+        #weapon-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+        #inventory-info { margin-top: 12px; font-size: 12px; color: #aaa; }
+        #discard-section { margin-top: 18px; padding-top: 15px; border-top: 1px solid rgba(255, 74, 74, 0.3); }
+        #discard-section h3 { font-size: 13px; color: #ff6b6b; margin-bottom: 10px; }
         .discard-btn {
             display: inline-block;
-            padding: 6px 10px;
-            margin: 3px;
-            border: 2px solid #ff4a4a;
-            border-radius: 6px;
-            background: #2a1a1a;
+            padding: 8px 12px;
+            margin: 4px;
+            border: 2px solid rgba(255, 74, 74, 0.5);
+            border-radius: 8px;
+            background: linear-gradient(180deg, rgba(60, 30, 30, 0.8) 0%, rgba(40, 20, 20, 0.9) 100%);
             cursor: pointer;
-            font-size: 10px;
+            font-size: 11px;
+            color: #eee;
+            transition: all 0.2s ease;
         }
-        .discard-btn:hover { background: #4a1a1a; }
+        .discard-btn:hover { background: linear-gradient(180deg, rgba(80, 40, 40, 0.9) 0%, rgba(60, 30, 30, 0.95) 100%); border-color: #ff4a4a; }
         #tutorial {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
+            background: linear-gradient(180deg, rgba(10, 15, 30, 0.98) 0%, rgba(5, 10, 25, 0.99) 100%);
             z-index: 300;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 30px;
             text-align: center;
         }
-        #tutorial h2 { color: #4a9eff; margin-bottom: 15px; font-size: 22px; }
-        #tutorial p { margin: 6px 0; font-size: 14px; }
-        .step { color: #ffd700; }
+        #tutorial h2 {
+            color: #4a9eff;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 0 0 30px rgba(74, 158, 255, 0.5);
+        }
+        #tutorial p { margin: 8px 0; font-size: 15px; line-height: 1.6; }
+        .step {
+            color: #ffd700;
+            font-weight: 700;
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
+            background: linear-gradient(180deg, rgba(255, 215, 0, 0.3) 0%, rgba(200, 160, 0, 0.2) 100%);
+            border-radius: 50%;
+            margin-right: 8px;
+        }
         #start-game-btn {
-            margin-top: 20px;
-            padding: 12px 30px;
-            font-size: 16px;
-            background: #4a9eff;
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(180deg, #5aafff 0%, #3a8fdf 100%);
             border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 6px 25px rgba(74, 158, 255, 0.5);
+            transition: all 0.2s ease;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        #start-game-btn:hover { transform: scale(1.05); box-shadow: 0 8px 35px rgba(74, 158, 255, 0.6); }
+        #start-game-btn:active { transform: scale(0.98); }
+        #sound-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
             color: white;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
+        #sound-toggle:hover { background: rgba(255, 255, 255, 0.2); }
     </style>
 </head>
 <body>
     <div id="tutorial">
-        <h2>🏰 タワーディフェンス</h2>
-        <div>
-            <p><span class="step">①</span> 下のタワーを選んでタップ</p>
-            <p><span class="step">②</span> 青エリア（下部）に配置</p>
-            <p><span class="step">③</span> 「開始」ボタンで敵が来る</p>
-            <p><span class="step">④</span> 敵を倒してゴールドGET</p>
-            <p style="color:#ffd700; margin-top:12px;">🎁 ウェーブクリアで新武器GET!</p>
-            <p style="color:#ff6b6b;">⚠️ 手持ちは最大6種類まで</p>
+        <h2>🚀 SPACE DEFENSE</h2>
+        <div style="max-width: 300px;">
+            <p><span class="step">1</span> 下のタワーを選んでタップ</p>
+            <p><span class="step">2</span> 青エリア（下部）に配置</p>
+            <p><span class="step">3</span> 「開始」ボタンで敵が来る</p>
+            <p><span class="step">4</span> 敵を倒してゴールドGET</p>
+            <p style="color:#ffd700; margin-top:15px; font-weight: 600;">🎁 ウェーブクリアで新武器!</p>
+            <p style="color:#ff6b6b; font-size: 13px;">⚠️ 手持ちは最大6種類まで</p>
         </div>
-        <button id="start-game-btn">ゲームスタート！</button>
-        <div style="position:absolute; bottom:10px; right:10px; font-size:10px; color:#666;">v2.3.0</div>
+        <button id="start-game-btn">🚀 START</button>
+        <div style="position:absolute; bottom:15px; right:15px; font-size:11px; color:#555;">v3.0.0</div>
     </div>
 
     <div id="app">
@@ -219,6 +307,7 @@
             <div class="stat"><span class="stat-icon">❤️</span><span id="lives">20</span></div>
             <div class="stat"><span class="stat-icon">🌊</span><span id="wave">0</span>/<span id="max-wave">15</span></div>
             <div class="stat"><span class="stat-icon">💀</span><span id="kills">0</span></div>
+            <button id="sound-toggle" style="padding: 4px 8px; font-size: 12px; border-radius: 15px;">🔊</button>
         </div>
 
         <div id="game-container">
@@ -334,6 +423,332 @@
         ];
 
         let canvas, ctx, gameState;
+        let bgCanvas, bgCtx; // 背景キャンバス（パフォーマンス最適化用）
+        let ambientParticles = []; // 環境パーティクル
+        let audioCtx; // 音声コンテキスト
+        let soundEnabled = true;
+
+        // 音声システム初期化
+        function initAudio() {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log('Audio not supported');
+                soundEnabled = false;
+            }
+        }
+
+        // 効果音生成
+        function playSound(type) {
+            if (!soundEnabled || !audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            switch(type) {
+                case 'shoot':
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                    break;
+
+                case 'laser':
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                    break;
+
+                case 'explosion':
+                    // ノイズ風の爆発音
+                    const bufferSize = audioCtx.sampleRate * 0.2;
+                    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+                    }
+                    const noise = audioCtx.createBufferSource();
+                    noise.buffer = buffer;
+                    const noiseGain = audioCtx.createGain();
+                    noiseGain.gain.setValueAtTime(0.15, now);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    noise.connect(noiseGain);
+                    noiseGain.connect(audioCtx.destination);
+                    noise.start(now);
+                    return; // ノイズは別処理
+
+                case 'hit':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.03);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
+                    osc.start(now);
+                    osc.stop(now + 0.03);
+                    break;
+
+                case 'kill':
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                    break;
+
+                case 'place':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(500, now);
+                    osc.frequency.setValueAtTime(700, now + 0.05);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                    break;
+
+                case 'upgrade':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.setValueAtTime(600, now + 0.05);
+                    osc.frequency.setValueAtTime(800, now + 0.1);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                    break;
+
+                case 'wave':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.setValueAtTime(400, now + 0.1);
+                    osc.frequency.setValueAtTime(500, now + 0.2);
+                    osc.frequency.setValueAtTime(600, now + 0.3);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                    break;
+
+                case 'gameover':
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                    break;
+
+                case 'victory':
+                    osc.type = 'sine';
+                    [400, 500, 600, 800].forEach((freq, i) => {
+                        osc.frequency.setValueAtTime(freq, now + i * 0.15);
+                    });
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                    break;
+
+                case 'freeze':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(1200, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                    gain.gain.setValueAtTime(0.06, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                    break;
+
+                case 'missile':
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(300, now + 0.3);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                    break;
+
+                case 'chain':
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(1000, now);
+                    osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+                    gain.gain.setValueAtTime(0.06, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                    break;
+
+                case 'button':
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                    break;
+            }
+        }
+
+        // 宇宙背景パターン生成
+        function generateBackground() {
+            bgCanvas = document.createElement('canvas');
+            bgCtx = bgCanvas.getContext('2d');
+            bgCanvas.width = canvas.width;
+            bgCanvas.height = canvas.height;
+
+            // 深宇宙グラデーション
+            const grad = bgCtx.createRadialGradient(
+                bgCanvas.width * 0.5, bgCanvas.height * 0.3, 0,
+                bgCanvas.width * 0.5, bgCanvas.height * 0.5, bgCanvas.height
+            );
+            grad.addColorStop(0, '#1a1a3a');
+            grad.addColorStop(0.3, '#0a0a20');
+            grad.addColorStop(0.7, '#050510');
+            grad.addColorStop(1, '#000005');
+            bgCtx.fillStyle = grad;
+            bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+            // 星雲（紫/青のぼんやりした光）
+            for (let i = 0; i < 5; i++) {
+                const x = Math.random() * bgCanvas.width;
+                const y = Math.random() * bgCanvas.height * 0.7;
+                const radius = 30 + Math.random() * 60;
+                const nebulaGrad = bgCtx.createRadialGradient(x, y, 0, x, y, radius);
+                const hue = Math.random() < 0.5 ? 280 : 200; // 紫 or 青
+                nebulaGrad.addColorStop(0, `hsla(${hue}, 60%, 40%, 0.15)`);
+                nebulaGrad.addColorStop(0.5, `hsla(${hue}, 50%, 30%, 0.08)`);
+                nebulaGrad.addColorStop(1, 'transparent');
+                bgCtx.fillStyle = nebulaGrad;
+                bgCtx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+            }
+
+            // 星（様々なサイズ）
+            for (let i = 0; i < 120; i++) {
+                const x = Math.random() * bgCanvas.width;
+                const y = Math.random() * bgCanvas.height;
+                const size = Math.random() < 0.9 ? 0.5 + Math.random() * 1 : 1.5 + Math.random() * 1.5;
+                const brightness = 0.3 + Math.random() * 0.7;
+
+                // 星の色（白、青白、黄色など）
+                const starColors = ['#ffffff', '#aaccff', '#ffeecc', '#ccddff', '#ffffaa'];
+                bgCtx.fillStyle = starColors[Math.floor(Math.random() * starColors.length)];
+                bgCtx.globalAlpha = brightness;
+                bgCtx.beginPath();
+                bgCtx.arc(x, y, size, 0, Math.PI * 2);
+                bgCtx.fill();
+
+                // 明るい星には十字のキラキラ
+                if (size > 1.5) {
+                    bgCtx.strokeStyle = '#ffffff';
+                    bgCtx.lineWidth = 0.5;
+                    bgCtx.globalAlpha = brightness * 0.5;
+                    bgCtx.beginPath();
+                    bgCtx.moveTo(x - size * 2, y);
+                    bgCtx.lineTo(x + size * 2, y);
+                    bgCtx.moveTo(x, y - size * 2);
+                    bgCtx.lineTo(x, y + size * 2);
+                    bgCtx.stroke();
+                }
+            }
+            bgCtx.globalAlpha = 1;
+
+            // 遠い銀河（ぼんやりした楕円）
+            for (let i = 0; i < 3; i++) {
+                const x = Math.random() * bgCanvas.width;
+                const y = Math.random() * bgCanvas.height * 0.6;
+                const size = 10 + Math.random() * 20;
+                bgCtx.save();
+                bgCtx.translate(x, y);
+                bgCtx.rotate(Math.random() * Math.PI);
+                const galaxyGrad = bgCtx.createRadialGradient(0, 0, 0, 0, 0, size);
+                galaxyGrad.addColorStop(0, 'rgba(200, 180, 255, 0.3)');
+                galaxyGrad.addColorStop(0.5, 'rgba(150, 130, 200, 0.1)');
+                galaxyGrad.addColorStop(1, 'transparent');
+                bgCtx.fillStyle = galaxyGrad;
+                bgCtx.scale(1, 0.4);
+                bgCtx.beginPath();
+                bgCtx.arc(0, 0, size, 0, Math.PI * 2);
+                bgCtx.fill();
+                bgCtx.restore();
+            }
+
+            // タワーゾーン（宇宙ステーション風）
+            const towerZoneY = CONFIG.TOWER_ZONE_START * GRID_SIZE;
+            const platformGrad = bgCtx.createLinearGradient(0, towerZoneY, 0, bgCanvas.height);
+            platformGrad.addColorStop(0, 'rgba(30, 40, 60, 0.8)');
+            platformGrad.addColorStop(0.1, 'rgba(20, 30, 50, 0.9)');
+            platformGrad.addColorStop(1, 'rgba(15, 20, 35, 0.95)');
+            bgCtx.fillStyle = platformGrad;
+            bgCtx.fillRect(0, towerZoneY, bgCanvas.width, bgCanvas.height - towerZoneY);
+
+            // グリッドライン（テクノ風）
+            bgCtx.strokeStyle = 'rgba(74, 158, 255, 0.1)';
+            bgCtx.lineWidth = 1;
+            for (let x = 0; x <= CONFIG.COLS; x++) {
+                bgCtx.beginPath();
+                bgCtx.moveTo(x * GRID_SIZE, towerZoneY);
+                bgCtx.lineTo(x * GRID_SIZE, bgCanvas.height);
+                bgCtx.stroke();
+            }
+            for (let y = CONFIG.TOWER_ZONE_START; y <= CONFIG.ROWS; y++) {
+                bgCtx.beginPath();
+                bgCtx.moveTo(0, y * GRID_SIZE);
+                bgCtx.lineTo(bgCanvas.width, y * GRID_SIZE);
+                bgCtx.stroke();
+            }
+
+            // 六角形パターン（ハイテク感）
+            for (let x = 0; x < CONFIG.COLS; x++) {
+                for (let y = CONFIG.TOWER_ZONE_START; y < CONFIG.ROWS; y++) {
+                    const px = x * GRID_SIZE + GRID_SIZE / 2;
+                    const py = y * GRID_SIZE + GRID_SIZE / 2;
+                    if ((x + y) % 3 === 0) {
+                        bgCtx.strokeStyle = 'rgba(74, 158, 255, 0.08)';
+                        bgCtx.lineWidth = 1;
+                        bgCtx.beginPath();
+                        for (let i = 0; i < 6; i++) {
+                            const angle = (i * Math.PI / 3) - Math.PI / 6;
+                            const hx = px + Math.cos(angle) * GRID_SIZE * 0.35;
+                            const hy = py + Math.sin(angle) * GRID_SIZE * 0.35;
+                            if (i === 0) bgCtx.moveTo(hx, hy);
+                            else bgCtx.lineTo(hx, hy);
+                        }
+                        bgCtx.closePath();
+                        bgCtx.stroke();
+                    }
+                }
+            }
+
+            // 環境パーティクル（流れ星・浮遊粒子）
+            ambientParticles = [];
+            for (let i = 0; i < 20; i++) {
+                ambientParticles.push({
+                    x: Math.random() * bgCanvas.width,
+                    y: Math.random() * bgCanvas.height * 0.65,
+                    vx: 0.1 + Math.random() * 0.3,
+                    vy: 0.05 + Math.random() * 0.1,
+                    size: 0.5 + Math.random() * 1.5,
+                    alpha: 0.3 + Math.random() * 0.5,
+                    twinkle: Math.random() * Math.PI * 2,
+                    type: 'star'
+                });
+            }
+        }
 
         function initState() {
             return {
@@ -367,6 +782,7 @@
             GRID_SIZE = Math.min(gw, gh, 40);
             canvas.width = CONFIG.COLS * GRID_SIZE;
             canvas.height = CONFIG.ROWS * GRID_SIZE;
+            generateBackground(); // 背景再生成
         }
 
         function init() {
@@ -400,6 +816,14 @@
             document.getElementById('restart-btn').addEventListener('click', restartGame);
             document.getElementById('start-game-btn').addEventListener('click', () => {
                 document.getElementById('tutorial').style.display = 'none';
+                initAudio(); // ユーザー操作後に音声初期化
+                playSound('wave');
+            });
+
+            document.getElementById('sound-toggle').addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                document.getElementById('sound-toggle').textContent = soundEnabled ? '🔊' : '🔇';
+                if (soundEnabled) playSound('button');
             });
 
             updateTowerPanel();
@@ -451,6 +875,7 @@
                 level: 1, lastFire: 0, ...tt
             });
             gameState.gold -= tt.cost;
+            playSound('place');
             updateUI();
             gameState.selectedTower = null;
             document.querySelectorAll('.tower-btn').forEach(btn => btn.classList.remove('selected'));
@@ -489,6 +914,7 @@
             t.damage = Math.floor(t.damage * 1.4);
             t.range += 0.3;
             t.fireRate = Math.floor(t.fireRate * 0.9);
+            playSound('upgrade');
             updateUI();
             showUpgradePanel(t);
         }
@@ -599,6 +1025,7 @@
             gameState.waveInProgress = true;
             gameState.wave++;
             updateUI();
+            playSound('wave');
 
             document.getElementById('start-btn').disabled = true;
             document.getElementById('start-btn').textContent = '⚔️ 戦闘中';
@@ -1131,6 +1558,7 @@
                 gameState.kills++;
                 updateUI();
                 gameState.shake = 5;
+                playSound('kill');
 
                 for (let i = 0; i < 15; i++) {
                     const angle = Math.random() * Math.PI * 2;
@@ -1165,6 +1593,7 @@
 
         function createExplosion(x, y, color) {
             gameState.shake = 8;
+            playSound('explosion');
             for (let i = 0; i < 25; i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const speed = 3 + Math.random() * 5;
@@ -1200,36 +1629,45 @@
                 if (gameState.shake < 0.5) gameState.shake = 0;
             }
 
-            ctx.fillStyle = '#0f0f23';
-            ctx.fillRect(-10, -10, canvas.width + 20, canvas.height + 20);
-
-            // グリッド
-            ctx.strokeStyle = '#1a1a3a';
-            ctx.lineWidth = 1;
-            for (let x = 0; x <= CONFIG.COLS; x++) {
-                ctx.beginPath();
-                ctx.moveTo(x * GRID_SIZE, 0);
-                ctx.lineTo(x * GRID_SIZE, canvas.height);
-                ctx.stroke();
-            }
-            for (let y = 0; y <= CONFIG.ROWS; y++) {
-                ctx.beginPath();
-                ctx.moveTo(0, y * GRID_SIZE);
-                ctx.lineTo(canvas.width, y * GRID_SIZE);
-                ctx.stroke();
+            // 宇宙背景描画
+            if (bgCanvas) {
+                ctx.drawImage(bgCanvas, 0, 0);
+            } else {
+                ctx.fillStyle = '#0f0f23';
+                ctx.fillRect(-10, -10, canvas.width + 20, canvas.height + 20);
             }
 
-            // タワーゾーン
-            ctx.fillStyle = 'rgba(74,158,255,0.12)';
-            ctx.fillRect(0, CONFIG.TOWER_ZONE_START * GRID_SIZE, canvas.width, (CONFIG.ROWS - CONFIG.TOWER_ZONE_START) * GRID_SIZE);
-            ctx.strokeStyle = '#4a9eff';
+            // 環境パーティクル（キラキラ星）
+            const now = Date.now();
+            ambientParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.twinkle += 0.05;
+
+                // 画面外に出たらリセット
+                if (p.x > canvas.width) { p.x = 0; p.y = Math.random() * canvas.height * 0.65; }
+                if (p.y > canvas.height * 0.65) { p.y = 0; p.x = Math.random() * canvas.width; }
+
+                const twinkleAlpha = p.alpha * (0.5 + 0.5 * Math.sin(p.twinkle));
+                ctx.globalAlpha = twinkleAlpha;
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+
+            // タワーゾーン境界線（光るライン）
+            const lineGlow = 0.5 + 0.3 * Math.sin(now * 0.002);
+            ctx.strokeStyle = `rgba(74, 158, 255, ${lineGlow})`;
             ctx.lineWidth = 2;
-            ctx.setLineDash([5, 5]);
+            ctx.shadowColor = '#4a9eff';
+            ctx.shadowBlur = 10;
             ctx.beginPath();
             ctx.moveTo(0, CONFIG.TOWER_ZONE_START * GRID_SIZE);
             ctx.lineTo(canvas.width, CONFIG.TOWER_ZONE_START * GRID_SIZE);
             ctx.stroke();
-            ctx.setLineDash([]);
+            ctx.shadowBlur = 0;
 
             // 選択中タワー射程
             if (gameState.selectedPlacedTower) {
@@ -1240,60 +1678,197 @@
                 ctx.fill();
             }
 
-            // タワー
+            // タワー（回転・グロー付き）
             gameState.towers.forEach(t => {
                 const s = GRID_SIZE * 0.35;
+
+                // 最も近い敵を見つけて回転角度を計算
+                let targetAngle = -Math.PI / 2; // デフォルトは上向き
+                let minDist = Infinity;
+                gameState.enemies.forEach(e => {
+                    const d = Math.sqrt((e.x - t.x) ** 2 + (e.y - t.y) ** 2);
+                    if (d < minDist && d / GRID_SIZE <= t.range) {
+                        minDist = d;
+                        targetAngle = Math.atan2(e.y - t.y, e.x - t.x);
+                    }
+                });
+
+                // スムーズ回転
+                if (!t.currentAngle) t.currentAngle = -Math.PI / 2;
+                let angleDiff = targetAngle - t.currentAngle;
+                while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+                while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+                t.currentAngle += angleDiff * 0.15;
+
+                ctx.save();
+                ctx.translate(t.x, t.y);
+
+                // ベースプラットフォーム（六角形）
+                ctx.fillStyle = 'rgba(30, 40, 60, 0.8)';
+                ctx.strokeStyle = t.color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i * Math.PI / 3) - Math.PI / 6;
+                    const hx = Math.cos(angle) * s * 1.1;
+                    const hy = Math.sin(angle) * s * 1.1;
+                    if (i === 0) ctx.moveTo(hx, hy);
+                    else ctx.lineTo(hx, hy);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // タワー本体（回転）
+                ctx.rotate(t.currentAngle + Math.PI / 2);
+
+                // グローエフェクト
+                ctx.shadowColor = t.color;
+                ctx.shadowBlur = 8 + t.level * 2;
+
+                // タワー形状
                 ctx.fillStyle = t.color;
                 ctx.beginPath();
-                ctx.moveTo(t.x, t.y - s);
-                ctx.lineTo(t.x + s, t.y + s);
-                ctx.lineTo(t.x - s, t.y + s);
+                ctx.moveTo(0, -s * 1.2);
+                ctx.lineTo(s * 0.6, s * 0.6);
+                ctx.lineTo(-s * 0.6, s * 0.6);
                 ctx.closePath();
                 ctx.fill();
 
+                // 内側のハイライト
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.moveTo(0, -s * 0.8);
+                ctx.lineTo(s * 0.3, s * 0.2);
+                ctx.lineTo(-s * 0.3, s * 0.2);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.shadowBlur = 0;
+                ctx.restore();
+
+                // レベル表示（バッジ風）
                 if (t.level > 1) {
-                    ctx.fillStyle = '#fff';
-                    ctx.font = `bold ${GRID_SIZE * 0.25}px sans-serif`;
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    ctx.beginPath();
+                    ctx.arc(t.x + s * 0.8, t.y + s * 0.8, GRID_SIZE * 0.18, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#ffd700';
+                    ctx.font = `bold ${GRID_SIZE * 0.22}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText(`${t.level}`, t.x, t.y + s + GRID_SIZE * 0.3);
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(`${t.level}`, t.x + s * 0.8, t.y + s * 0.8);
                 }
             });
 
-            // 敵
-            const now = Date.now();
+            // 敵（影・グロー・アニメーション付き）
             gameState.enemies.forEach(e => {
-                const bw = e.size * 1.5, hp = e.hp / e.maxHp;
-                ctx.fillStyle = '#333';
-                ctx.fillRect(e.x - bw / 2, e.y - e.size - 6, bw, 3);
-                ctx.fillStyle = hp > 0.5 ? '#4aff4a' : hp > 0.25 ? '#ffd700' : '#ff4a4a';
-                ctx.fillRect(e.x - bw / 2, e.y - e.size - 6, bw * hp, 3);
+                // 歩行アニメーション
+                if (!e.animPhase) e.animPhase = Math.random() * Math.PI * 2;
+                e.animPhase += e.speed * 0.15;
+                const wobble = Math.sin(e.animPhase) * 2;
+                const squash = 1 + Math.sin(e.animPhase * 2) * 0.05;
+
+                // 影
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.beginPath();
+                ctx.ellipse(e.x, e.y + e.size * 0.8, e.size * 0.8, e.size * 0.3, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // HPバー（モダンスタイル）
+                const bw = e.size * 1.8, hp = e.hp / e.maxHp;
+                const barY = e.y - e.size - 10;
+                // 背景
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                ctx.beginPath();
+                ctx.roundRect(e.x - bw / 2 - 1, barY - 1, bw + 2, 6, 3);
+                ctx.fill();
+                // HP
+                const hpColor = hp > 0.5 ? '#4aff4a' : hp > 0.25 ? '#ffd700' : '#ff4a4a';
+                const hpGrad = ctx.createLinearGradient(e.x - bw/2, 0, e.x - bw/2 + bw * hp, 0);
+                hpGrad.addColorStop(0, hpColor);
+                hpGrad.addColorStop(1, hp > 0.5 ? '#2d9d2d' : hp > 0.25 ? '#cc9900' : '#cc2222');
+                ctx.fillStyle = hpGrad;
+                ctx.beginPath();
+                ctx.roundRect(e.x - bw / 2, barY, bw * hp, 4, 2);
+                ctx.fill();
+
+                ctx.save();
+                ctx.translate(e.x + wobble, e.y);
+                ctx.scale(1 / squash, squash);
 
                 // 燃焼エフェクト
                 if (now < e.burnUntil) {
                     ctx.shadowColor = '#ff4400';
-                    ctx.shadowBlur = 10;
+                    ctx.shadowBlur = 15;
                 }
 
-                ctx.fillStyle = now < e.slowUntil ? '#4affff' : e.color;
+                // スロー効果
+                if (now < e.slowUntil) {
+                    ctx.shadowColor = '#00ffff';
+                    ctx.shadowBlur = 12;
+                }
+
+                // 敵本体
                 ctx.globalAlpha = e.isGhost ? 0.5 : 1;
+
+                // 外側のグロー
+                ctx.shadowColor = e.color;
+                ctx.shadowBlur = 5;
+
+                // グラデーション塗り
+                const bodyGrad = ctx.createRadialGradient(-e.size * 0.3, -e.size * 0.3, 0, 0, 0, e.size);
+                const baseColor = now < e.slowUntil ? '#4affff' : e.color;
+                bodyGrad.addColorStop(0, '#fff');
+                bodyGrad.addColorStop(0.3, baseColor);
+                bodyGrad.addColorStop(1, baseColor);
+                ctx.fillStyle = bodyGrad;
                 ctx.beginPath();
-                ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+                ctx.arc(0, 0, e.size, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.globalAlpha = 1;
+
                 ctx.shadowBlur = 0;
 
+                // 目
                 ctx.fillStyle = '#fff';
                 ctx.beginPath();
-                ctx.arc(e.x - e.size * 0.3, e.y - e.size * 0.2, e.size * 0.15, 0, Math.PI * 2);
-                ctx.arc(e.x + e.size * 0.3, e.y - e.size * 0.2, e.size * 0.15, 0, Math.PI * 2);
+                ctx.arc(-e.size * 0.3, -e.size * 0.15, e.size * 0.2, 0, Math.PI * 2);
+                ctx.arc(e.size * 0.3, -e.size * 0.15, e.size * 0.2, 0, Math.PI * 2);
                 ctx.fill();
+
+                // 瞳（下を向く）
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(-e.size * 0.3, -e.size * 0.05, e.size * 0.1, 0, Math.PI * 2);
+                ctx.arc(e.size * 0.3, -e.size * 0.05, e.size * 0.1, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.globalAlpha = 1;
+                ctx.restore();
 
                 // ヒーラーマーク
                 if (e.isHealer) {
                     ctx.fillStyle = '#fff';
-                    ctx.font = `${e.size * 0.8}px sans-serif`;
+                    ctx.strokeStyle = '#4caf50';
+                    ctx.lineWidth = 2;
+                    ctx.font = `bold ${e.size * 0.9}px sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.fillText('+', e.x, e.y + e.size * 0.3);
+                    ctx.textBaseline = 'middle';
+                    ctx.strokeText('+', e.x, e.y);
+                    ctx.fillText('+', e.x, e.y);
+                }
+
+                // アーマー表示
+                if (e.armor > 0) {
+                    ctx.fillStyle = 'rgba(100, 110, 130, 0.8)';
+                    ctx.beginPath();
+                    ctx.arc(e.x, e.y + e.size * 0.4, e.size * 0.25, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#fff';
+                    ctx.font = `bold ${e.size * 0.3}px sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('🛡', e.x, e.y + e.size * 0.4);
                 }
             });
 
@@ -1468,6 +2043,7 @@
             document.getElementById('result-detail').textContent = victory
                 ? `全${WAVES.length}ウェーブクリア！ 撃破:${gameState.kills}`
                 : `Wave ${gameState.wave} 敗北... 撃破:${gameState.kills}`;
+            playSound(victory ? 'victory' : 'gameover');
         }
 
         function restartGame() {

@@ -1,15 +1,15 @@
 {
-    "name": "Tower Defense",
-    "short_name": "TD Game",
-    "description": "シンプルなタワーディフェンスゲーム",
+    "name": "Space Defense",
+    "short_name": "Space TD",
+    "description": "宇宙を舞台にしたタワーディフェンスゲーム",
     "start_url": "/index.html",
     "display": "standalone",
-    "background_color": "#1a1a2e",
+    "background_color": "#0a0a1a",
     "theme_color": "#4a9eff",
     "orientation": "portrait",
     "icons": [
         {
-            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a1a2e' width='100' height='100'/><polygon fill='%234a9eff' points='50,20 70,60 30,60'/><circle fill='%23ff6b6b' cx='50' cy='80' r='10'/></svg>",
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='bg' cx='50%25' cy='30%25'><stop offset='0%25' stop-color='%231a1a3a'/><stop offset='100%25' stop-color='%23050510'/></radialGradient></defs><rect fill='url(%23bg)' width='100' height='100'/><circle fill='%23fff' cx='20' cy='20' r='1'/><circle fill='%23fff' cx='80' cy='15' r='1.5'/><circle fill='%23fff' cx='70' cy='40' r='1'/><circle fill='%23fff' cx='30' cy='35' r='0.8'/><polygon fill='%234a9eff' points='50,25 65,55 35,55'/><circle fill='%23ff6b6b' cx='50' cy='75' r='8'/><circle fill='%23fff' cx='47' cy='73' r='2'/><circle fill='%23fff' cx='53' cy='73' r='2'/></svg>",
             "sizes": "any",
             "type": "image/svg+xml",
             "purpose": "any"
