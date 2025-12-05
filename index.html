@@ -281,7 +281,20 @@
     </div>
 
     <div id="wave-info">
-        <button id="start-btn">ウェーブ開始</button>
+        <button id="start-btn">🚀 ウェーブ開始！</button>
+        <p id="hint" style="font-size:12px; color:#aaa; margin-top:8px;">↑タワーを配置したらこのボタンで敵が来る！</p>
+    </div>
+
+    <div id="tutorial" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:20px; text-align:center;">
+        <h2 style="color:#4a9eff; margin-bottom:20px;">遊び方</h2>
+        <div style="max-width:400px; line-height:1.8;">
+            <p>1. 下のタワーボタンを選択</p>
+            <p>2. 青いエリア（下部）をタップして配置</p>
+            <p>3.「ウェーブ開始」ボタンを押す</p>
+            <p>4. 上から来る敵を倒せ！</p>
+            <p style="color:#ff6b6b; margin-top:10px;">⚠️ 敵がゴールに到達するとライフ減少</p>
+        </div>
+        <button id="start-game-btn" style="margin-top:30px; padding:15px 40px; font-size:18px; background:#4a9eff; border:none; border-radius:8px; color:white; cursor:pointer;">ゲームスタート！</button>
     </div>
 
     <script>
@@ -511,6 +524,11 @@
 
             // リスタート
             document.getElementById('restart-btn').addEventListener('click', restartGame);
+
+            // チュートリアル閉じる
+            document.getElementById('start-game-btn').addEventListener('click', () => {
+                document.getElementById('tutorial').style.display = 'none';
+            });
         }
 
         // ============================================
