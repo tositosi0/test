@@ -140,20 +140,22 @@
         }
         #weapon-select h2 { color: #ffd700; }
         .weapon-choice {
-            display: inline-block;
-            padding: 10px;
-            margin: 5px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 8px;
+            margin: 3px;
             border: 2px solid #444;
-            border-radius: 8px;
+            border-radius: 6px;
             background: #1a1a2e;
             cursor: pointer;
-            min-width: 80px;
+            min-width: 50px;
             transition: all 0.2s;
         }
         .weapon-choice:hover { border-color: #4a9eff; background: #2a2a5a; }
-        .weapon-choice .icon { font-size: 24px; }
-        .weapon-choice .name { font-size: 11px; font-weight: bold; margin-top: 3px; }
-        .weapon-choice .desc { font-size: 9px; color: #aaa; margin-top: 2px; }
+        .weapon-choice .icon { font-size: 18px; }
+        .weapon-choice .name { font-size: 9px; font-weight: bold; }
+        #weapon-choices { display: flex; flex-wrap: wrap; justify-content: center; }
         #inventory-info { margin-top: 10px; font-size: 11px; color: #ff6b6b; }
         #discard-section { margin-top: 15px; padding-top: 10px; border-top: 1px solid #444; }
         #discard-section h3 { font-size: 12px; color: #ff6b6b; margin-bottom: 8px; }
@@ -208,7 +210,7 @@
             <p style="color:#ff6b6b;">⚠️ 手持ちは最大6種類まで</p>
         </div>
         <button id="start-game-btn">ゲームスタート！</button>
-        <div style="position:absolute; bottom:10px; right:10px; font-size:10px; color:#666;">v2.0.0</div>
+        <div style="position:absolute; bottom:10px; right:10px; font-size:10px; color:#666;">v2.1.0</div>
     </div>
 
     <div id="app">
@@ -279,16 +281,12 @@
             blackhole: { name: 'ブラックホール', icon: '🕳️', cost: 250, damage: 5, range: 3, fireRate: 100, color: '#4a148c', isBlackhole: true, pullStrength: 0.5, desc: '敵を引き寄せ', tier: 4 }
         };
 
-        // ウェーブ毎に解放される武器プール（tier別）
-        const UNLOCK_POOLS = {
-            1: ['rapid', 'shotgun', 'freeze', 'pierce'],  // Wave 1クリア後
-            2: ['sniper', 'fire', 'chain'],               // Wave 2クリア後
-            3: ['laser', 'missile', 'flamethrower'],      // Wave 3クリア後
-            4: ['minigun', 'cannon', 'tesla'],            // Wave 4クリア後
-            5: ['plasma', 'mortar'],                      // Wave 5クリア後
-            6: ['railgun'],                               // Wave 6クリア後
-            7: ['blackhole']                              // Wave 7クリア後
-        };
+        // 全武器プール（毎ウェーブ1つ選べる）
+        const ALL_UNLOCK_WEAPONS = [
+            'rapid', 'shotgun', 'freeze', 'pierce', 'sniper', 'fire', 'chain',
+            'laser', 'missile', 'flamethrower', 'minigun', 'cannon', 'tesla',
+            'plasma', 'mortar', 'railgun', 'blackhole'
+        ];
 
         // 敵タイプ（10種類）
         const ENEMY_TYPES = {
@@ -493,18 +491,9 @@
             closeUpgradePanel();
         }
 
-        function getAvailableWeaponsForWave(wave) {
-            let available = [];
-            for (let w = 1; w <= wave; w++) {
-                if (UNLOCK_POOLS[w]) {
-                    UNLOCK_POOLS[w].forEach(weapon => {
-                        if (!gameState.unlockedWeapons.includes(weapon) && !available.includes(weapon)) {
-                            available.push(weapon);
-                        }
-                    });
-                }
-            }
-            return available;
+        function getAvailableWeaponsForWave() {
+            // まだ持っていない武器をすべて返す
+            return ALL_UNLOCK_WEAPONS.filter(w => !gameState.unlockedWeapons.includes(w));
         }
 
         function showWeaponSelectUI(choices) {
@@ -519,7 +508,8 @@
                 const w = ALL_WEAPONS[wKey];
                 const div = document.createElement('div');
                 div.className = 'weapon-choice';
-                div.innerHTML = `<div class="icon">${w.icon}</div><div class="name">${w.name}</div><div class="desc">${w.desc}</div>`;
+                div.innerHTML = `<div class="icon">${w.icon}</div><div class="name">${w.name}</div>`;
+                div.title = w.desc;
                 div.onclick = () => selectNewWeapon(wKey);
                 choicesDiv.appendChild(div);
             });
@@ -528,7 +518,7 @@
             const skipBtn = document.createElement('div');
             skipBtn.className = 'weapon-choice';
             skipBtn.style.borderColor = '#666';
-            skipBtn.innerHTML = `<div class="icon">⏭️</div><div class="name">スキップ</div><div class="desc">今回はパス</div>`;
+            skipBtn.innerHTML = `<div class="icon">⏭️</div><div class="name">パス</div>`;
             skipBtn.onclick = () => closeWeaponSelect();
             choicesDiv.appendChild(skipBtn);
 
@@ -667,10 +657,10 @@
                     gameState.gold += 20 + gameState.wave * 10;
                     updateUI();
 
-                    // 武器解放チェック
-                    const available = getAvailableWeaponsForWave(gameState.wave);
+                    // 武器解放（毎ウェーブ必ず1つ選べる）
+                    const available = getAvailableWeaponsForWave();
                     if (available.length > 0) {
-                        // ランダムに2〜3個選ぶ
+                        // ランダムに3個選ぶ
                         const shuffled = available.sort(() => Math.random() - 0.5);
                         const choices = shuffled.slice(0, Math.min(3, shuffled.length));
                         setTimeout(() => showWeaponSelectUI(choices), 500);
@@ -883,10 +873,10 @@
                 // モーター
                 if (t.isMortar) {
                     gameState.bullets.push({
-                        x: t.x, y: t.y,
+                        startX: t.x, startY: t.y,
                         targetX: target.x, targetY: target.y,
                         damage: t.damage, color: t.color,
-                        isMortar: true, splashRadius: t.splashRadius,
+                        isMortar: true, splashRadius: t.splashRadius || 2,
                         progress: 0, duration: 40
                     });
                     return;
@@ -1339,12 +1329,11 @@
             gameState.bullets.forEach(b => {
                 // モーター（放物線）
                 if (b.isMortar) {
-                    const t = b.progress / b.duration;
-                    const startX = b.x, startY = b.y;
-                    const midX = (startX + b.targetX) / 2;
-                    const midY = Math.min(startY, b.targetY) - 50;
-                    const currX = (1-t)*(1-t)*startX + 2*(1-t)*t*midX + t*t*b.targetX;
-                    const currY = (1-t)*(1-t)*startY + 2*(1-t)*t*midY + t*t*b.targetY;
+                    const prog = b.progress / b.duration;
+                    const midX = (b.startX + b.targetX) / 2;
+                    const midY = Math.min(b.startY, b.targetY) - 60;
+                    const currX = (1-prog)*(1-prog)*b.startX + 2*(1-prog)*prog*midX + prog*prog*b.targetX;
+                    const currY = (1-prog)*(1-prog)*b.startY + 2*(1-prog)*prog*midY + prog*prog*b.targetY;
                     ctx.fillStyle = b.color;
                     ctx.beginPath();
                     ctx.arc(currX, currY, 6, 0, Math.PI * 2);
