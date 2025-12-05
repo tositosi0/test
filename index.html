@@ -50,6 +50,8 @@
             background: #16213e;
             flex-shrink: 0;
             flex-wrap: wrap;
+            max-height: 80px;
+            overflow-y: auto;
         }
         .tower-btn {
             display: flex;
@@ -61,13 +63,13 @@
             background: #1a1a2e;
             color: #eee;
             cursor: pointer;
-            min-width: 52px;
+            min-width: 48px;
         }
         .tower-btn.selected { border-color: #4a9eff; background: #2a2a5a; }
         .tower-btn.disabled { opacity: 0.5; }
-        .tower-icon { font-size: 18px; }
-        .tower-name { font-size: 9px; font-weight: bold; }
-        .tower-cost { font-size: 8px; color: #ffd700; }
+        .tower-icon { font-size: 16px; }
+        .tower-name { font-size: 8px; font-weight: bold; }
+        .tower-cost { font-size: 7px; color: #ffd700; }
         #wave-info {
             padding: 8px;
             background: #16213e;
@@ -109,18 +111,21 @@
             font-size: 11px;
         }
         .upgrade-btn:disabled { opacity: 0.5; }
-        #game-over {
+        #game-over, #weapon-select {
             display: none;
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.95);
-            padding: 25px;
+            padding: 20px;
             border-radius: 10px;
             text-align: center;
             z-index: 200;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
         }
-        #game-over h2 { font-size: 24px; margin-bottom: 10px; }
+        #game-over h2, #weapon-select h2 { font-size: 20px; margin-bottom: 10px; }
         .victory { color: #4aff4a; }
         .defeat { color: #ff4a4a; }
         #restart-btn {
@@ -133,6 +138,36 @@
             cursor: pointer;
             margin-top: 10px;
         }
+        #weapon-select h2 { color: #ffd700; }
+        .weapon-choice {
+            display: inline-block;
+            padding: 10px;
+            margin: 5px;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background: #1a1a2e;
+            cursor: pointer;
+            min-width: 80px;
+            transition: all 0.2s;
+        }
+        .weapon-choice:hover { border-color: #4a9eff; background: #2a2a5a; }
+        .weapon-choice .icon { font-size: 24px; }
+        .weapon-choice .name { font-size: 11px; font-weight: bold; margin-top: 3px; }
+        .weapon-choice .desc { font-size: 9px; color: #aaa; margin-top: 2px; }
+        #inventory-info { margin-top: 10px; font-size: 11px; color: #ff6b6b; }
+        #discard-section { margin-top: 15px; padding-top: 10px; border-top: 1px solid #444; }
+        #discard-section h3 { font-size: 12px; color: #ff6b6b; margin-bottom: 8px; }
+        .discard-btn {
+            display: inline-block;
+            padding: 6px 10px;
+            margin: 3px;
+            border: 2px solid #ff4a4a;
+            border-radius: 6px;
+            background: #2a1a1a;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        .discard-btn:hover { background: #4a1a1a; }
         #tutorial {
             position: fixed;
             top: 0; left: 0;
@@ -169,17 +204,18 @@
             <p><span class="step">②</span> 青エリア（下部）に配置</p>
             <p><span class="step">③</span> 「開始」ボタンで敵が来る</p>
             <p><span class="step">④</span> 敵を倒してゴールドGET</p>
-            <p style="color:#ff6b6b; margin-top:12px;">⚠️ 敵が下まで来るとライフ減少</p>
+            <p style="color:#ffd700; margin-top:12px;">🎁 ウェーブクリアで新武器GET!</p>
+            <p style="color:#ff6b6b;">⚠️ 手持ちは最大6種類まで</p>
         </div>
         <button id="start-game-btn">ゲームスタート！</button>
-        <div style="position:absolute; bottom:10px; right:10px; font-size:10px; color:#666;">v1.2.0</div>
+        <div style="position:absolute; bottom:10px; right:10px; font-size:10px; color:#666;">v2.0.0</div>
     </div>
 
     <div id="app">
         <div id="game-header">
             <div class="stat"><span class="stat-icon">💰</span><span id="gold">100</span></div>
             <div class="stat"><span class="stat-icon">❤️</span><span id="lives">20</span></div>
-            <div class="stat"><span class="stat-icon">🌊</span><span id="wave">0</span>/<span id="max-wave">10</span></div>
+            <div class="stat"><span class="stat-icon">🌊</span><span id="wave">0</span>/<span id="max-wave">15</span></div>
             <div class="stat"><span class="stat-icon">💀</span><span id="kills">0</span></div>
         </div>
 
@@ -197,15 +233,18 @@
                 <p id="result-detail"></p>
                 <button id="restart-btn">もう一度</button>
             </div>
+            <div id="weapon-select">
+                <h2>🎁 新しい武器を選べ！</h2>
+                <div id="weapon-choices"></div>
+                <div id="inventory-info"></div>
+                <div id="discard-section" style="display:none;">
+                    <h3>🗑️ 武器を捨てる（6個制限）</h3>
+                    <div id="discard-choices"></div>
+                </div>
+            </div>
         </div>
 
-        <div id="tower-panel">
-            <div class="tower-btn" data-tower="basic"><span class="tower-icon">🔫</span><span class="tower-name">ベーシック</span><span class="tower-cost">💰50</span></div>
-            <div class="tower-btn" data-tower="shotgun"><span class="tower-icon">🔥</span><span class="tower-name">散弾銃</span><span class="tower-cost">💰80</span></div>
-            <div class="tower-btn" data-tower="laser"><span class="tower-icon">⚡</span><span class="tower-name">レーザー</span><span class="tower-cost">💰100</span></div>
-            <div class="tower-btn" data-tower="missile"><span class="tower-icon">🚀</span><span class="tower-name">ミサイル</span><span class="tower-cost">💰120</span></div>
-            <div class="tower-btn" data-tower="chain"><span class="tower-icon">⛓️</span><span class="tower-name">チェイン</span><span class="tower-cost">💰90</span></div>
-        </div>
+        <div id="tower-panel"></div>
 
         <div id="wave-info">
             <button id="start-btn">🚀 ウェーブ開始</button>
@@ -216,34 +255,72 @@
         // ゲーム設定
         let CONFIG = { COLS: 10, ROWS: 12, TOWER_ZONE_START: 8 };
         let GRID_SIZE = 32;
+        const MAX_WEAPONS = 6;
 
-        const TOWER_TYPES = {
-            basic: { name: 'ベーシック', cost: 50, damage: 10, range: 2.5, fireRate: 1000, color: '#4a9eff', bulletColor: '#4a9eff', bulletSpeed: 8 },
-            shotgun: { name: '散弾銃', cost: 80, damage: 8, range: 1.8, fireRate: 1200, color: '#ff9f43', bulletColor: '#ff9f43', bulletSpeed: 12, shotCount: 5, spread: 0.4 },
-            laser: { name: 'レーザー', cost: 100, damage: 25, range: 6, fireRate: 800, color: '#ff4757', bulletColor: '#ff4757', isLaser: true },
-            missile: { name: 'ミサイル', cost: 120, damage: 40, range: 4, fireRate: 2000, color: '#5f27cd', bulletColor: '#5f27cd', bulletSpeed: 4, isMissile: true, explosionRadius: 1.2 },
-            chain: { name: 'チェイン', cost: 90, damage: 15, range: 3, fireRate: 1000, color: '#00d2d3', bulletColor: '#00d2d3', isChain: true, chainCount: 3, chainRange: 2 }
+        // 全武器データ（18種類）
+        const ALL_WEAPONS = {
+            basic: { name: 'ベーシック', icon: '🔫', cost: 50, damage: 10, range: 2.5, fireRate: 1000, color: '#4a9eff', bulletSpeed: 8, desc: '基本の武器', tier: 0 },
+            rapid: { name: 'ラピッド', icon: '⚡', cost: 60, damage: 6, range: 2.2, fireRate: 400, color: '#ffeb3b', bulletSpeed: 10, desc: '超高速連射', tier: 1 },
+            shotgun: { name: '散弾銃', icon: '🔥', cost: 80, damage: 8, range: 1.8, fireRate: 1200, color: '#ff9f43', bulletSpeed: 12, shotCount: 5, spread: 0.4, desc: '近距離5方向', tier: 1 },
+            sniper: { name: 'スナイパー', icon: '🎯', cost: 100, damage: 50, range: 6, fireRate: 2500, color: '#9c27b0', bulletSpeed: 20, desc: '超長射程', tier: 2 },
+            freeze: { name: 'フリーズ', icon: '❄️', cost: 90, damage: 5, range: 2.5, fireRate: 800, color: '#00bcd4', bulletSpeed: 8, isFreeze: true, slowDuration: 2000, desc: '敵を減速', tier: 1 },
+            laser: { name: 'レーザー', icon: '💥', cost: 120, damage: 25, range: 6, fireRate: 800, color: '#ff4757', isLaser: true, desc: '貫通ビーム', tier: 2 },
+            missile: { name: 'ミサイル', icon: '🚀', cost: 130, damage: 40, range: 4, fireRate: 2000, color: '#5f27cd', bulletSpeed: 4, isMissile: true, explosionRadius: 1.2, desc: '追尾＆爆発', tier: 2 },
+            chain: { name: 'チェイン', icon: '⛓️', cost: 100, damage: 15, range: 3, fireRate: 1000, color: '#00d2d3', isChain: true, chainCount: 3, chainRange: 2, desc: '3体に連鎖', tier: 2 },
+            pierce: { name: 'ピアス', icon: '🗡️', cost: 85, damage: 18, range: 4, fireRate: 900, color: '#e91e63', bulletSpeed: 15, isPierce: true, pierceCount: 3, desc: '3体貫通', tier: 1 },
+            fire: { name: 'ファイア', icon: '🔥', cost: 95, damage: 8, range: 2.5, fireRate: 600, color: '#ff5722', bulletSpeed: 10, isFire: true, burnDamage: 3, burnDuration: 3000, desc: '継続ダメージ', tier: 2 },
+            minigun: { name: 'ミニガン', icon: '🔧', cost: 150, damage: 4, range: 2.8, fireRate: 100, color: '#607d8b', bulletSpeed: 12, desc: '超連射', tier: 3 },
+            cannon: { name: 'キャノン', icon: '💣', cost: 140, damage: 80, range: 3.5, fireRate: 3000, color: '#795548', bulletSpeed: 6, isCannon: true, splashRadius: 1.5, desc: '大爆発', tier: 3 },
+            tesla: { name: 'テスラ', icon: '⚡', cost: 160, damage: 20, range: 3.5, fireRate: 600, color: '#7c4dff', isChain: true, chainCount: 5, chainRange: 2.5, desc: '5体連鎖', tier: 3 },
+            plasma: { name: 'プラズマ', icon: '🟣', cost: 170, damage: 30, range: 4, fireRate: 1200, color: '#e040fb', bulletSpeed: 8, isPierce: true, pierceCount: 5, isFire: true, burnDamage: 5, burnDuration: 2000, desc: '貫通+燃焼', tier: 3 },
+            railgun: { name: 'レールガン', icon: '🔷', cost: 200, damage: 100, range: 8, fireRate: 3500, color: '#00e5ff', isLaser: true, desc: '最強貫通', tier: 4 },
+            flamethrower: { name: '火炎放射', icon: '🌋', cost: 110, damage: 3, range: 2, fireRate: 50, color: '#ff6f00', isFlame: true, desc: '常時範囲攻撃', tier: 2 },
+            mortar: { name: 'モーター', icon: '🎆', cost: 180, damage: 60, range: 5, fireRate: 2500, color: '#8d6e63', bulletSpeed: 3, isMortar: true, splashRadius: 2, desc: '超広範囲', tier: 3 },
+            blackhole: { name: 'ブラックホール', icon: '🕳️', cost: 250, damage: 5, range: 3, fireRate: 100, color: '#4a148c', isBlackhole: true, pullStrength: 0.5, desc: '敵を引き寄せ', tier: 4 }
         };
 
+        // ウェーブ毎に解放される武器プール（tier別）
+        const UNLOCK_POOLS = {
+            1: ['rapid', 'shotgun', 'freeze', 'pierce'],  // Wave 1クリア後
+            2: ['sniper', 'fire', 'chain'],               // Wave 2クリア後
+            3: ['laser', 'missile', 'flamethrower'],      // Wave 3クリア後
+            4: ['minigun', 'cannon', 'tesla'],            // Wave 4クリア後
+            5: ['plasma', 'mortar'],                      // Wave 5クリア後
+            6: ['railgun'],                               // Wave 6クリア後
+            7: ['blackhole']                              // Wave 7クリア後
+        };
+
+        // 敵タイプ（10種類）
         const ENEMY_TYPES = {
             normal: { hp: 30, speed: 1, reward: 10, color: '#ff6b6b', size: 0.3 },
-            fast: { hp: 20, speed: 2, reward: 15, color: '#ffd93d', size: 0.25 },
-            tank: { hp: 100, speed: 0.5, reward: 30, color: '#6bcb77', size: 0.4 },
-            boss: { hp: 300, speed: 0.3, reward: 100, color: '#9b59b6', size: 0.55 },
-            swarm: { hp: 10, speed: 1.5, reward: 5, color: '#e67e22', size: 0.2 }
+            fast: { hp: 20, speed: 2.2, reward: 15, color: '#ffd93d', size: 0.25 },
+            tank: { hp: 120, speed: 0.5, reward: 30, color: '#6bcb77', size: 0.4 },
+            boss: { hp: 400, speed: 0.3, reward: 100, color: '#9b59b6', size: 0.55 },
+            swarm: { hp: 10, speed: 1.8, reward: 5, color: '#e67e22', size: 0.18 },
+            armored: { hp: 200, speed: 0.4, reward: 50, color: '#546e7a', size: 0.45, armor: 5 },
+            healer: { hp: 60, speed: 0.8, reward: 40, color: '#4caf50', size: 0.3, isHealer: true, healAmount: 2, healRange: 2 },
+            splitter: { hp: 50, speed: 1, reward: 20, color: '#ff7043', size: 0.35, splits: 2 },
+            ghost: { hp: 40, speed: 1.5, reward: 25, color: 'rgba(200,200,255,0.6)', size: 0.3, isGhost: true },
+            megaboss: { hp: 1000, speed: 0.2, reward: 200, color: '#d500f9', size: 0.7, armor: 10 }
         };
 
+        // 15ウェーブ（段階的に難易度UP）
         const WAVES = [
             { enemies: [{ type: 'normal', count: 5, interval: 1500 }] },
-            { enemies: [{ type: 'normal', count: 8, interval: 1200 }] },
-            { enemies: [{ type: 'normal', count: 5, interval: 1200 }, { type: 'fast', count: 3, interval: 800 }] },
-            { enemies: [{ type: 'normal', count: 6, interval: 1000 }, { type: 'tank', count: 2, interval: 2000 }] },
-            { enemies: [{ type: 'fast', count: 8, interval: 600 }, { type: 'normal', count: 5, interval: 1000 }] },
-            { enemies: [{ type: 'swarm', count: 15, interval: 400 }, { type: 'tank', count: 2, interval: 2500 }] },
-            { enemies: [{ type: 'normal', count: 10, interval: 800 }, { type: 'fast', count: 6, interval: 600 }, { type: 'tank', count: 3, interval: 2000 }] },
-            { enemies: [{ type: 'swarm', count: 20, interval: 300 }, { type: 'fast', count: 10, interval: 500 }] },
-            { enemies: [{ type: 'tank', count: 5, interval: 1500 }, { type: 'fast', count: 8, interval: 600 }, { type: 'normal', count: 8, interval: 800 }] },
-            { enemies: [{ type: 'normal', count: 10, interval: 800 }, { type: 'tank', count: 3, interval: 2000 }, { type: 'boss', count: 1, interval: 5000 }] }
+            { enemies: [{ type: 'normal', count: 8, interval: 1200 }, { type: 'fast', count: 3, interval: 1000 }] },
+            { enemies: [{ type: 'normal', count: 6, interval: 1000 }, { type: 'swarm', count: 8, interval: 500 }] },
+            { enemies: [{ type: 'tank', count: 3, interval: 2000 }, { type: 'normal', count: 8, interval: 1000 }] },
+            { enemies: [{ type: 'fast', count: 10, interval: 600 }, { type: 'tank', count: 2, interval: 2500 }] },
+            { enemies: [{ type: 'swarm', count: 20, interval: 300 }, { type: 'healer', count: 2, interval: 3000 }] },
+            { enemies: [{ type: 'normal', count: 10, interval: 800 }, { type: 'splitter', count: 5, interval: 1500 }] },
+            { enemies: [{ type: 'armored', count: 3, interval: 2500 }, { type: 'fast', count: 12, interval: 500 }] },
+            { enemies: [{ type: 'ghost', count: 8, interval: 1000 }, { type: 'tank', count: 4, interval: 2000 }] },
+            { enemies: [{ type: 'boss', count: 1, interval: 0 }, { type: 'normal', count: 15, interval: 800 }] },
+            { enemies: [{ type: 'armored', count: 5, interval: 1800 }, { type: 'healer', count: 3, interval: 2500 }, { type: 'swarm', count: 15, interval: 400 }] },
+            { enemies: [{ type: 'splitter', count: 8, interval: 1200 }, { type: 'ghost', count: 6, interval: 1500 }] },
+            { enemies: [{ type: 'tank', count: 6, interval: 1500 }, { type: 'fast', count: 15, interval: 400 }, { type: 'boss', count: 1, interval: 5000 }] },
+            { enemies: [{ type: 'armored', count: 8, interval: 1200 }, { type: 'healer', count: 4, interval: 2000 }, { type: 'ghost', count: 10, interval: 800 }] },
+            { enemies: [{ type: 'megaboss', count: 1, interval: 0 }, { type: 'boss', count: 2, interval: 4000 }, { type: 'armored', count: 5, interval: 2000 }] }
         ];
 
         let canvas, ctx, gameState;
@@ -252,13 +329,15 @@
             return {
                 gold: 100, lives: 20, wave: 0, kills: 0,
                 selectedTower: null, towers: [], enemies: [], bullets: [], particles: [],
-                lasers: [], chains: [],
+                lasers: [], chains: [], flames: [],
                 waveInProgress: false, gameOver: false, spawnQueue: [], selectedPlacedTower: null,
-                shake: 0
+                shake: 0,
+                unlockedWeapons: ['basic'],  // 最初はベーシックのみ
+                availableForUnlock: [],       // まだ解放されていない武器プール
+                pendingWeaponChoice: null     // 選択待ちの武器候補
             };
         }
 
-        // レーザー用：点と線分の距離
         function pointToLineDistance(px, py, x1, y1, x2, y2) {
             const A = px - x1, B = py - y1, C = x2 - x1, D = y2 - y1;
             const dot = A * C + B * D;
@@ -273,12 +352,9 @@
             const container = document.getElementById('game-container');
             const maxW = container.clientWidth;
             const maxH = container.clientHeight;
-
-            // グリッドサイズを画面に合わせて計算
             const gw = Math.floor(maxW / CONFIG.COLS);
             const gh = Math.floor(maxH / CONFIG.ROWS);
             GRID_SIZE = Math.min(gw, gh, 40);
-
             canvas.width = CONFIG.COLS * GRID_SIZE;
             canvas.height = CONFIG.ROWS * GRID_SIZE;
         }
@@ -289,11 +365,7 @@
             ctx = canvas.getContext('2d');
 
             resizeCanvas();
-            window.addEventListener('resize', () => { resizeCanvas(); });
-
-            document.querySelectorAll('.tower-btn').forEach(btn => {
-                btn.addEventListener('click', () => selectTower(btn.dataset.tower));
-            });
+            window.addEventListener('resize', resizeCanvas);
 
             canvas.addEventListener('click', e => {
                 const r = canvas.getBoundingClientRect();
@@ -320,14 +392,32 @@
                 document.getElementById('tutorial').style.display = 'none';
             });
 
+            updateTowerPanel();
             updateUI();
             requestAnimationFrame(gameLoop);
+        }
+
+        function updateTowerPanel() {
+            const panel = document.getElementById('tower-panel');
+            panel.innerHTML = '';
+            gameState.unlockedWeapons.forEach(wKey => {
+                const w = ALL_WEAPONS[wKey];
+                const btn = document.createElement('div');
+                btn.className = 'tower-btn';
+                btn.dataset.tower = wKey;
+                btn.innerHTML = `<span class="tower-icon">${w.icon}</span><span class="tower-name">${w.name}</span><span class="tower-cost">💰${w.cost}</span>`;
+                btn.addEventListener('click', () => selectTower(wKey));
+                panel.appendChild(btn);
+            });
+            updateUI();
         }
 
         function selectTower(type) {
             document.querySelectorAll('.tower-btn').forEach(btn => btn.classList.remove('selected'));
             gameState.selectedTower = gameState.selectedTower === type ? null : type;
-            if (gameState.selectedTower) document.querySelector(`[data-tower="${type}"]`).classList.add('selected');
+            if (gameState.selectedTower) {
+                document.querySelector(`[data-tower="${type}"]`)?.classList.add('selected');
+            }
             closeUpgradePanel();
         }
 
@@ -341,7 +431,7 @@
             closeUpgradePanel();
             if (!gameState.selectedTower) return;
 
-            const tt = TOWER_TYPES[gameState.selectedTower];
+            const tt = ALL_WEAPONS[gameState.selectedTower];
             if (gameState.gold < tt.cost || row < CONFIG.TOWER_ZONE_START) return;
 
             gameState.towers.push({
@@ -403,6 +493,97 @@
             closeUpgradePanel();
         }
 
+        function getAvailableWeaponsForWave(wave) {
+            let available = [];
+            for (let w = 1; w <= wave; w++) {
+                if (UNLOCK_POOLS[w]) {
+                    UNLOCK_POOLS[w].forEach(weapon => {
+                        if (!gameState.unlockedWeapons.includes(weapon) && !available.includes(weapon)) {
+                            available.push(weapon);
+                        }
+                    });
+                }
+            }
+            return available;
+        }
+
+        function showWeaponSelectUI(choices) {
+            const modal = document.getElementById('weapon-select');
+            const choicesDiv = document.getElementById('weapon-choices');
+            const discardSection = document.getElementById('discard-section');
+            const discardChoices = document.getElementById('discard-choices');
+            const inventoryInfo = document.getElementById('inventory-info');
+
+            choicesDiv.innerHTML = '';
+            choices.forEach(wKey => {
+                const w = ALL_WEAPONS[wKey];
+                const div = document.createElement('div');
+                div.className = 'weapon-choice';
+                div.innerHTML = `<div class="icon">${w.icon}</div><div class="name">${w.name}</div><div class="desc">${w.desc}</div>`;
+                div.onclick = () => selectNewWeapon(wKey);
+                choicesDiv.appendChild(div);
+            });
+
+            // スキップボタン
+            const skipBtn = document.createElement('div');
+            skipBtn.className = 'weapon-choice';
+            skipBtn.style.borderColor = '#666';
+            skipBtn.innerHTML = `<div class="icon">⏭️</div><div class="name">スキップ</div><div class="desc">今回はパス</div>`;
+            skipBtn.onclick = () => closeWeaponSelect();
+            choicesDiv.appendChild(skipBtn);
+
+            inventoryInfo.textContent = `現在の武器: ${gameState.unlockedWeapons.length}/${MAX_WEAPONS}`;
+
+            // 武器が6個の場合、捨てる選択を表示
+            if (gameState.unlockedWeapons.length >= MAX_WEAPONS) {
+                discardSection.style.display = 'block';
+                discardChoices.innerHTML = '';
+                gameState.unlockedWeapons.forEach(wKey => {
+                    if (wKey === 'basic') return; // ベーシックは捨てられない
+                    const w = ALL_WEAPONS[wKey];
+                    const btn = document.createElement('div');
+                    btn.className = 'discard-btn';
+                    btn.innerHTML = `${w.icon} ${w.name}`;
+                    btn.onclick = () => discardWeapon(wKey);
+                    discardChoices.appendChild(btn);
+                });
+                inventoryInfo.textContent = '⚠️ 武器がいっぱい！先に1つ捨ててください';
+                inventoryInfo.style.color = '#ff6b6b';
+            } else {
+                discardSection.style.display = 'none';
+                inventoryInfo.style.color = '#aaa';
+            }
+
+            gameState.pendingWeaponChoice = choices;
+            modal.style.display = 'block';
+        }
+
+        function discardWeapon(wKey) {
+            const idx = gameState.unlockedWeapons.indexOf(wKey);
+            if (idx > -1) {
+                gameState.unlockedWeapons.splice(idx, 1);
+                updateTowerPanel();
+                // 再度UIを更新
+                if (gameState.pendingWeaponChoice) {
+                    showWeaponSelectUI(gameState.pendingWeaponChoice);
+                }
+            }
+        }
+
+        function selectNewWeapon(wKey) {
+            if (gameState.unlockedWeapons.length >= MAX_WEAPONS) {
+                return; // まず捨てる必要がある
+            }
+            gameState.unlockedWeapons.push(wKey);
+            updateTowerPanel();
+            closeWeaponSelect();
+        }
+
+        function closeWeaponSelect() {
+            document.getElementById('weapon-select').style.display = 'none';
+            gameState.pendingWeaponChoice = null;
+        }
+
         function startWave() {
             if (gameState.waveInProgress || gameState.gameOver || gameState.wave >= WAVES.length) return;
 
@@ -415,26 +596,43 @@
 
             const wd = WAVES[gameState.wave - 1];
             gameState.spawnQueue = [];
-            let delay = 0;
+            let delay = 500;
+
+            // 敵のHPをウェーブに応じてスケール
+            const hpScale = 1 + (gameState.wave - 1) * 0.15;
+
             wd.enemies.forEach(g => {
                 for (let i = 0; i < g.count; i++) {
-                    gameState.spawnQueue.push({ type: g.type, spawnTime: Date.now() + delay });
+                    gameState.spawnQueue.push({
+                        type: g.type,
+                        spawnTime: Date.now() + delay,
+                        hpScale: hpScale
+                    });
                     delay += g.interval;
                 }
             });
         }
 
-        function spawnEnemy(type) {
+        function spawnEnemy(type, hpScale = 1) {
             const et = ENEMY_TYPES[type];
             const col = Math.floor(Math.random() * CONFIG.COLS);
+            const scaledHp = Math.floor(et.hp * hpScale);
             gameState.enemies.push({
                 x: col * GRID_SIZE + GRID_SIZE / 2,
                 y: -GRID_SIZE / 2,
-                hp: et.hp, maxHp: et.hp,
+                type: type,
+                hp: scaledHp, maxHp: scaledHp,
                 speed: et.speed, baseSpeed: et.speed,
-                reward: et.reward, color: et.color,
+                reward: Math.floor(et.reward * (1 + (hpScale - 1) * 0.5)),
+                color: et.color,
                 size: et.size * GRID_SIZE,
-                slowUntil: 0
+                slowUntil: 0,
+                burnUntil: 0, burnDamage: 0,
+                armor: et.armor || 0,
+                isHealer: et.isHealer, healAmount: et.healAmount, healRange: et.healRange,
+                splits: et.splits,
+                isGhost: et.isGhost,
+                lastHeal: 0
             });
         }
 
@@ -450,7 +648,10 @@
 
             // スポーン
             gameState.spawnQueue = gameState.spawnQueue.filter(s => {
-                if (now >= s.spawnTime) { spawnEnemy(s.type); return false; }
+                if (now >= s.spawnTime) {
+                    spawnEnemy(s.type, s.hpScale);
+                    return false;
+                }
                 return true;
             });
 
@@ -463,15 +664,43 @@
                     endGame(true);
                 } else {
                     document.getElementById('start-btn').textContent = `🚀 Wave ${gameState.wave + 1}`;
-                    gameState.gold += 20 + gameState.wave * 5;
+                    gameState.gold += 20 + gameState.wave * 10;
                     updateUI();
+
+                    // 武器解放チェック
+                    const available = getAvailableWeaponsForWave(gameState.wave);
+                    if (available.length > 0) {
+                        // ランダムに2〜3個選ぶ
+                        const shuffled = available.sort(() => Math.random() - 0.5);
+                        const choices = shuffled.slice(0, Math.min(3, shuffled.length));
+                        setTimeout(() => showWeaponSelectUI(choices), 500);
+                    }
                 }
             }
 
-            // 敵移動
+            // 敵の更新
             gameState.enemies.forEach(e => {
-                e.speed = now < e.slowUntil ? e.baseSpeed * 0.5 : e.baseSpeed;
+                // スロー
+                e.speed = now < e.slowUntil ? e.baseSpeed * 0.4 : e.baseSpeed;
                 e.y += e.speed;
+
+                // 燃焼ダメージ
+                if (now < e.burnUntil && e.burnDamage > 0) {
+                    e.hp -= e.burnDamage * 0.016; // 60FPS想定
+                }
+
+                // ヒーラー能力
+                if (e.isHealer && now - e.lastHeal > 500) {
+                    e.lastHeal = now;
+                    gameState.enemies.forEach(other => {
+                        if (other === e) return;
+                        const d = Math.sqrt((other.x - e.x) ** 2 + (other.y - e.y) ** 2) / GRID_SIZE;
+                        if (d < e.healRange) {
+                            other.hp = Math.min(other.maxHp, other.hp + e.healAmount);
+                        }
+                    });
+                }
+
                 if (e.y >= canvas.height) {
                     gameState.lives--;
                     e.hp = 0;
@@ -479,105 +708,258 @@
                     if (gameState.lives <= 0) endGame(false);
                 }
             });
-            gameState.enemies = gameState.enemies.filter(e => e.hp > 0);
+
+            // 死亡処理（分裂含む）
+            gameState.enemies = gameState.enemies.filter(e => {
+                if (e.hp <= 0) {
+                    // 分裂
+                    if (e.splits && e.splits > 0) {
+                        for (let i = 0; i < e.splits; i++) {
+                            const child = {
+                                x: e.x + (Math.random() - 0.5) * 20,
+                                y: e.y,
+                                type: 'swarm',
+                                hp: 15, maxHp: 15,
+                                speed: 1.5, baseSpeed: 1.5,
+                                reward: 5,
+                                color: '#ff7043',
+                                size: GRID_SIZE * 0.18,
+                                slowUntil: 0, burnUntil: 0, burnDamage: 0, armor: 0
+                            };
+                            gameState.enemies.push(child);
+                        }
+                    }
+                    return false;
+                }
+                return true;
+            });
 
             // タワー攻撃
             gameState.towers.forEach(t => {
                 if (now - t.lastFire < t.fireRate) return;
 
+                // ゴースト無視（一部の武器は当たる）
+                let validEnemies = gameState.enemies;
+                if (!t.isLaser && !t.isChain && !t.isFlame) {
+                    validEnemies = gameState.enemies.filter(e => !e.isGhost || Math.random() < 0.3);
+                }
+
                 let target = null, minD = Infinity;
-                gameState.enemies.forEach(e => {
+                validEnemies.forEach(e => {
                     const d = Math.sqrt((e.x - t.x) ** 2 + (e.y - t.y) ** 2) / GRID_SIZE;
                     if (d <= t.range && d < minD) { minD = d; target = e; }
                 });
 
-                if (target) {
-                    t.lastFire = now;
+                if (!target) return;
+                t.lastFire = now;
 
-                    // レーザー：即時ヒット＆貫通
-                    if (t.isLaser) {
-                        const angle = Math.atan2(target.y - t.y, target.x - t.x);
-                        const laserEnd = { x: t.x + Math.cos(angle) * t.range * GRID_SIZE, y: t.y + Math.sin(angle) * t.range * GRID_SIZE };
-
-                        // レーザーライン上の敵全員にダメージ
-                        gameState.enemies.forEach(e => {
-                            const dist = pointToLineDistance(e.x, e.y, t.x, t.y, laserEnd.x, laserEnd.y);
-                            if (dist < e.size + 5) {
-                                dealDamage(e, t.damage);
+                // ブラックホール
+                if (t.isBlackhole) {
+                    gameState.enemies.forEach(e => {
+                        const d = Math.sqrt((e.x - t.x) ** 2 + (e.y - t.y) ** 2) / GRID_SIZE;
+                        if (d <= t.range) {
+                            const dx = t.x - e.x, dy = t.y - e.y;
+                            const dist = Math.sqrt(dx*dx + dy*dy);
+                            if (dist > 5) {
+                                e.x += (dx / dist) * t.pullStrength * GRID_SIZE * 0.1;
+                                e.y += (dy / dist) * t.pullStrength * GRID_SIZE * 0.1;
                             }
-                        });
-
-                        // レーザーエフェクト
-                        gameState.lasers.push({ x1: t.x, y1: t.y, x2: laserEnd.x, y2: laserEnd.y, color: t.bulletColor, life: 8 });
-                    }
-                    // チェイン：連鎖ダメージ
-                    else if (t.isChain) {
-                        let chainTargets = [target];
-                        let lastTarget = target;
-                        dealDamage(target, t.damage);
-
-                        for (let i = 1; i < t.chainCount; i++) {
-                            let nextTarget = null, nextDist = Infinity;
-                            gameState.enemies.forEach(e => {
-                                if (chainTargets.includes(e) || e.hp <= 0) return;
-                                const d = Math.sqrt((e.x - lastTarget.x) ** 2 + (e.y - lastTarget.y) ** 2) / GRID_SIZE;
-                                if (d <= t.chainRange && d < nextDist) { nextDist = d; nextTarget = e; }
-                            });
-                            if (nextTarget) {
-                                gameState.chains.push({ x1: lastTarget.x, y1: lastTarget.y, x2: nextTarget.x, y2: nextTarget.y, color: t.bulletColor, life: 12 });
-                                dealDamage(nextTarget, t.damage * (1 - i * 0.2));
-                                chainTargets.push(nextTarget);
-                                lastTarget = nextTarget;
-                            }
+                            dealDamage(e, t.damage);
                         }
-                        gameState.chains.push({ x1: t.x, y1: t.y, x2: target.x, y2: target.y, color: t.bulletColor, life: 12 });
-                    }
-                    // 散弾銃：複数弾発射
-                    else if (t.shotCount) {
-                        const baseAngle = Math.atan2(target.y - t.y, target.x - t.x);
-                        for (let i = 0; i < t.shotCount; i++) {
-                            const angle = baseAngle + (i - (t.shotCount - 1) / 2) * t.spread;
-                            gameState.bullets.push({
-                                x: t.x, y: t.y,
-                                vx: Math.cos(angle) * t.bulletSpeed,
-                                vy: Math.sin(angle) * t.bulletSpeed,
-                                damage: t.damage, speed: t.bulletSpeed,
-                                color: t.bulletColor, isShotgun: true, range: t.range * GRID_SIZE,
-                                startX: t.x, startY: t.y
-                            });
-                        }
-                    }
-                    // ミサイル：追尾＆爆発
-                    else if (t.isMissile) {
-                        const angle = Math.atan2(target.y - t.y, target.x - t.x);
-                        gameState.bullets.push({
-                            x: t.x, y: t.y, target,
-                            vx: Math.cos(angle) * 2, vy: Math.sin(angle) * 2,
-                            damage: t.damage, speed: t.bulletSpeed || 4,
-                            color: t.bulletColor, isMissile: true, explosionRadius: t.explosionRadius
+                    });
+                    // エフェクト
+                    if (Math.random() < 0.3) {
+                        gameState.particles.push({
+                            x: t.x + (Math.random()-0.5) * t.range * GRID_SIZE,
+                            y: t.y + (Math.random()-0.5) * t.range * GRID_SIZE,
+                            vx: 0, vy: 0, color: '#7c4dff', size: 3, life: 20, type: 'spark'
                         });
                     }
-                    // 通常弾
-                    else {
-                        gameState.bullets.push({
-                            x: t.x, y: t.y, target,
-                            damage: t.damage, speed: t.bulletSpeed || 8,
-                            color: t.bulletColor
-                        });
-                    }
+                    return;
                 }
+
+                // 火炎放射
+                if (t.isFlame) {
+                    gameState.enemies.forEach(e => {
+                        const d = Math.sqrt((e.x - t.x) ** 2 + (e.y - t.y) ** 2) / GRID_SIZE;
+                        if (d <= t.range) {
+                            dealDamage(e, t.damage);
+                            e.burnUntil = now + 1000;
+                            e.burnDamage = 2;
+                        }
+                    });
+                    // 炎エフェクト
+                    for (let i = 0; i < 3; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const dist = Math.random() * t.range * GRID_SIZE;
+                        gameState.particles.push({
+                            x: t.x + Math.cos(angle) * dist,
+                            y: t.y + Math.sin(angle) * dist,
+                            vx: (Math.random()-0.5)*2, vy: -1 - Math.random(),
+                            color: Math.random() < 0.5 ? '#ff6600' : '#ffcc00',
+                            size: 4 + Math.random() * 4, life: 15, type: 'explosion'
+                        });
+                    }
+                    return;
+                }
+
+                // レーザー
+                if (t.isLaser) {
+                    const angle = Math.atan2(target.y - t.y, target.x - t.x);
+                    const laserEnd = { x: t.x + Math.cos(angle) * t.range * GRID_SIZE, y: t.y + Math.sin(angle) * t.range * GRID_SIZE };
+                    gameState.enemies.forEach(e => {
+                        const dist = pointToLineDistance(e.x, e.y, t.x, t.y, laserEnd.x, laserEnd.y);
+                        if (dist < e.size + 5) {
+                            dealDamage(e, t.damage);
+                        }
+                    });
+                    gameState.lasers.push({ x1: t.x, y1: t.y, x2: laserEnd.x, y2: laserEnd.y, color: t.color, life: 8 });
+                    return;
+                }
+
+                // チェイン
+                if (t.isChain) {
+                    let chainTargets = [target];
+                    let lastTarget = target;
+                    dealDamage(target, t.damage);
+                    for (let i = 1; i < t.chainCount; i++) {
+                        let nextTarget = null, nextDist = Infinity;
+                        gameState.enemies.forEach(e => {
+                            if (chainTargets.includes(e) || e.hp <= 0) return;
+                            const d = Math.sqrt((e.x - lastTarget.x) ** 2 + (e.y - lastTarget.y) ** 2) / GRID_SIZE;
+                            if (d <= t.chainRange && d < nextDist) { nextDist = d; nextTarget = e; }
+                        });
+                        if (nextTarget) {
+                            gameState.chains.push({ x1: lastTarget.x, y1: lastTarget.y, x2: nextTarget.x, y2: nextTarget.y, color: t.color, life: 12 });
+                            dealDamage(nextTarget, t.damage * (1 - i * 0.15));
+                            chainTargets.push(nextTarget);
+                            lastTarget = nextTarget;
+                        }
+                    }
+                    gameState.chains.push({ x1: t.x, y1: t.y, x2: target.x, y2: target.y, color: t.color, life: 12 });
+                    return;
+                }
+
+                // 散弾銃
+                if (t.shotCount) {
+                    const baseAngle = Math.atan2(target.y - t.y, target.x - t.x);
+                    for (let i = 0; i < t.shotCount; i++) {
+                        const angle = baseAngle + (i - (t.shotCount - 1) / 2) * t.spread;
+                        gameState.bullets.push({
+                            x: t.x, y: t.y,
+                            vx: Math.cos(angle) * t.bulletSpeed,
+                            vy: Math.sin(angle) * t.bulletSpeed,
+                            damage: t.damage, speed: t.bulletSpeed,
+                            color: t.color, isShotgun: true, range: t.range * GRID_SIZE,
+                            startX: t.x, startY: t.y
+                        });
+                    }
+                    return;
+                }
+
+                // ミサイル
+                if (t.isMissile) {
+                    const angle = Math.atan2(target.y - t.y, target.x - t.x);
+                    gameState.bullets.push({
+                        x: t.x, y: t.y, target,
+                        vx: Math.cos(angle) * 2, vy: Math.sin(angle) * 2,
+                        damage: t.damage, speed: t.bulletSpeed || 4,
+                        color: t.color, isMissile: true, explosionRadius: t.explosionRadius
+                    });
+                    return;
+                }
+
+                // キャノン
+                if (t.isCannon) {
+                    gameState.bullets.push({
+                        x: t.x, y: t.y, target,
+                        vx: 0, vy: 0,
+                        damage: t.damage, speed: t.bulletSpeed || 6,
+                        color: t.color, isCannon: true, splashRadius: t.splashRadius
+                    });
+                    return;
+                }
+
+                // モーター
+                if (t.isMortar) {
+                    gameState.bullets.push({
+                        x: t.x, y: t.y,
+                        targetX: target.x, targetY: target.y,
+                        damage: t.damage, color: t.color,
+                        isMortar: true, splashRadius: t.splashRadius,
+                        progress: 0, duration: 40
+                    });
+                    return;
+                }
+
+                // 貫通弾
+                if (t.isPierce) {
+                    const angle = Math.atan2(target.y - t.y, target.x - t.x);
+                    gameState.bullets.push({
+                        x: t.x, y: t.y,
+                        vx: Math.cos(angle) * t.bulletSpeed,
+                        vy: Math.sin(angle) * t.bulletSpeed,
+                        damage: t.damage, speed: t.bulletSpeed,
+                        color: t.color, isPierce: true, pierceCount: t.pierceCount,
+                        hitEnemies: [],
+                        isFire: t.isFire, burnDamage: t.burnDamage, burnDuration: t.burnDuration
+                    });
+                    return;
+                }
+
+                // フリーズ弾
+                if (t.isFreeze) {
+                    gameState.bullets.push({
+                        x: t.x, y: t.y, target,
+                        damage: t.damage, speed: t.bulletSpeed || 8,
+                        color: t.color, isFreeze: true, slowDuration: t.slowDuration
+                    });
+                    return;
+                }
+
+                // ファイア弾
+                if (t.isFire) {
+                    gameState.bullets.push({
+                        x: t.x, y: t.y, target,
+                        damage: t.damage, speed: t.bulletSpeed || 10,
+                        color: t.color, isFire: true, burnDamage: t.burnDamage, burnDuration: t.burnDuration
+                    });
+                    return;
+                }
+
+                // 通常弾
+                gameState.bullets.push({
+                    x: t.x, y: t.y, target,
+                    damage: t.damage, speed: t.bulletSpeed || 8,
+                    color: t.color
+                });
             });
 
             // 弾移動
             gameState.bullets = gameState.bullets.filter(b => {
-                // 散弾銃の弾（直進、距離制限）
+                // モーター（放物線）
+                if (b.isMortar) {
+                    b.progress++;
+                    const t = b.progress / b.duration;
+                    if (t >= 1) {
+                        // 着弾
+                        gameState.enemies.forEach(e => {
+                            const d = Math.sqrt((e.x - b.targetX) ** 2 + (e.y - b.targetY) ** 2) / GRID_SIZE;
+                            if (d <= b.splashRadius) {
+                                dealDamage(e, b.damage * (1 - d / b.splashRadius * 0.5));
+                            }
+                        });
+                        createExplosion(b.targetX, b.targetY, b.color);
+                        return false;
+                    }
+                    return true;
+                }
+
+                // 散弾銃
                 if (b.isShotgun) {
-                    b.x += b.vx;
-                    b.y += b.vy;
+                    b.x += b.vx; b.y += b.vy;
                     const traveled = Math.sqrt((b.x - b.startX) ** 2 + (b.y - b.startY) ** 2);
                     if (traveled > b.range) return false;
-
-                    // 敵に当たったかチェック
                     for (let e of gameState.enemies) {
                         const d = Math.sqrt((e.x - b.x) ** 2 + (e.y - b.y) ** 2);
                         if (d < e.size + 5) {
@@ -588,12 +970,32 @@
                     return true;
                 }
 
-                // ミサイル（追尾）
-                if (b.isMissile && b.target.hp > 0) {
+                // 貫通弾
+                if (b.isPierce) {
+                    b.x += b.vx; b.y += b.vy;
+                    if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) return false;
+                    for (let e of gameState.enemies) {
+                        if (b.hitEnemies.includes(e)) continue;
+                        const d = Math.sqrt((e.x - b.x) ** 2 + (e.y - b.y) ** 2);
+                        if (d < e.size + 5) {
+                            dealDamage(e, b.damage);
+                            b.hitEnemies.push(e);
+                            if (b.isFire) {
+                                e.burnUntil = now + b.burnDuration;
+                                e.burnDamage = b.burnDamage;
+                            }
+                            b.pierceCount--;
+                            if (b.pierceCount <= 0) return false;
+                        }
+                    }
+                    return true;
+                }
+
+                // ミサイル
+                if (b.isMissile && b.target && b.target.hp > 0) {
                     const dx = b.target.x - b.x, dy = b.target.y - b.y;
                     const d = Math.sqrt(dx * dx + dy * dy);
                     if (d < 15) {
-                        // 爆発
                         gameState.enemies.forEach(e => {
                             const ed = Math.sqrt((e.x - b.x) ** 2 + (e.y - b.y) ** 2) / GRID_SIZE;
                             if (ed <= b.explosionRadius) {
@@ -603,13 +1005,10 @@
                         createExplosion(b.x, b.y, b.color);
                         return false;
                     }
-                    // 追尾移動
                     const angle = Math.atan2(dy, dx);
                     b.vx = b.vx * 0.9 + Math.cos(angle) * b.speed * 0.3;
                     b.vy = b.vy * 0.9 + Math.sin(angle) * b.speed * 0.3;
-                    b.x += b.vx;
-                    b.y += b.vy;
-                    // ミサイル煙
+                    b.x += b.vx; b.y += b.vy;
                     if (Math.random() < 0.5) {
                         gameState.particles.push({
                             x: b.x, y: b.y, vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2,
@@ -619,16 +1018,72 @@
                     return true;
                 }
 
+                // キャノン
+                if (b.isCannon) {
+                    if (!b.target || b.target.hp <= 0) return false;
+                    const dx = b.target.x - b.x, dy = b.target.y - b.y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < 15) {
+                        gameState.enemies.forEach(e => {
+                            const ed = Math.sqrt((e.x - b.x) ** 2 + (e.y - b.y) ** 2) / GRID_SIZE;
+                            if (ed <= b.splashRadius) {
+                                dealDamage(e, b.damage * (1 - ed / b.splashRadius * 0.4));
+                            }
+                        });
+                        createExplosion(b.x, b.y, b.color);
+                        return false;
+                    }
+                    b.x += dx / d * b.speed;
+                    b.y += dy / d * b.speed;
+                    return true;
+                }
+
+                // フリーズ
+                if (b.isFreeze) {
+                    if (!b.target || b.target.hp <= 0) return false;
+                    const dx = b.target.x - b.x, dy = b.target.y - b.y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < 10) {
+                        dealDamage(b.target, b.damage);
+                        b.target.slowUntil = now + b.slowDuration;
+                        for (let i = 0; i < 8; i++) {
+                            gameState.particles.push({
+                                x: b.target.x, y: b.target.y,
+                                vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4,
+                                color: '#00ffff', size: 3, life: 15, type: 'spark'
+                            });
+                        }
+                        return false;
+                    }
+                    b.x += dx / d * b.speed;
+                    b.y += dy / d * b.speed;
+                    return true;
+                }
+
+                // ファイア
+                if (b.isFire && !b.isPierce) {
+                    if (!b.target || b.target.hp <= 0) return false;
+                    const dx = b.target.x - b.x, dy = b.target.y - b.y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < 10) {
+                        dealDamage(b.target, b.damage);
+                        b.target.burnUntil = now + b.burnDuration;
+                        b.target.burnDamage = b.burnDamage;
+                        return false;
+                    }
+                    b.x += dx / d * b.speed;
+                    b.y += dy / d * b.speed;
+                    return true;
+                }
+
                 // 通常弾
                 if (!b.target || b.target.hp <= 0) return false;
                 const dx = b.target.x - b.x, dy = b.target.y - b.y;
                 const d = Math.sqrt(dx * dx + dy * dy);
-
                 if (d < 10) {
                     dealDamage(b.target, b.damage);
                     return false;
                 }
-
                 b.vx = dx / d * b.speed;
                 b.vy = dy / d * b.speed;
                 b.x += b.vx;
@@ -640,27 +1095,21 @@
             gameState.particles = gameState.particles.filter(p => {
                 p.x += p.vx; p.y += p.vy;
                 p.life--;
-                if (p.type !== 'smoke') p.vy += 0.1;
+                if (p.type !== 'smoke' && p.type !== 'ring' && p.type !== 'flash') p.vy += 0.1;
                 return p.life > 0;
             });
 
             // レーザー減衰
-            gameState.lasers = gameState.lasers.filter(l => {
-                l.life--;
-                return l.life > 0;
-            });
-
+            gameState.lasers = gameState.lasers.filter(l => { l.life--; return l.life > 0; });
             // チェイン減衰
-            gameState.chains = gameState.chains.filter(c => {
-                c.life--;
-                return c.life > 0;
-            });
+            gameState.chains = gameState.chains.filter(c => { c.life--; return c.life > 0; });
         }
 
         function dealDamage(e, dmg) {
-            e.hp -= dmg;
+            // アーマー軽減
+            const actualDmg = Math.max(1, dmg - e.armor);
+            e.hp -= actualDmg;
 
-            // ヒットエフェクト（ダメージ時に小さい火花）
             for (let i = 0; i < 3; i++) {
                 gameState.particles.push({
                     x: e.x + (Math.random() - 0.5) * e.size,
@@ -675,86 +1124,66 @@
                 gameState.gold += e.reward;
                 gameState.kills++;
                 updateUI();
-
-                // 画面シェイク
                 gameState.shake = 5;
 
-                // メイン爆発パーティクル
-                for (let i = 0; i < 20; i++) {
+                for (let i = 0; i < 15; i++) {
                     const angle = Math.random() * Math.PI * 2;
-                    const speed = 2 + Math.random() * 5;
+                    const speed = 2 + Math.random() * 4;
                     gameState.particles.push({
                         x: e.x, y: e.y,
                         vx: Math.cos(angle) * speed,
                         vy: Math.sin(angle) * speed,
                         color: e.color,
-                        size: 3 + Math.random() * 5,
-                        life: 20 + Math.random() * 15,
+                        size: 3 + Math.random() * 4,
+                        life: 18 + Math.random() * 12,
                         type: 'explosion'
                     });
                 }
 
-                // 白い火花
-                for (let i = 0; i < 8; i++) {
+                for (let i = 0; i < 6; i++) {
                     gameState.particles.push({
                         x: e.x, y: e.y,
-                        vx: (Math.random() - 0.5) * 8,
-                        vy: (Math.random() - 0.5) * 8,
-                        color: '#fff',
-                        size: 2 + Math.random() * 2,
-                        life: 10 + Math.random() * 10,
-                        type: 'spark'
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: (Math.random() - 0.5) * 6,
+                        color: '#fff', size: 2, life: 10, type: 'spark'
                     });
                 }
 
-                // リング（衝撃波）
                 gameState.particles.push({
                     x: e.x, y: e.y, vx: 0, vy: 0,
                     color: e.color, size: 5, life: 15,
-                    type: 'ring', maxSize: e.size * 3
+                    type: 'ring', maxSize: e.size * 2.5
                 });
             }
         }
 
         function createExplosion(x, y, color) {
-            // 大爆発（範囲攻撃用）
             gameState.shake = 8;
-
-            // メイン爆発
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 25; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const speed = 3 + Math.random() * 6;
+                const speed = 3 + Math.random() * 5;
                 gameState.particles.push({
                     x, y,
                     vx: Math.cos(angle) * speed,
                     vy: Math.sin(angle) * speed,
                     color: i % 3 === 0 ? '#ff0' : color,
-                    size: 4 + Math.random() * 6,
-                    life: 25 + Math.random() * 15,
+                    size: 4 + Math.random() * 5,
+                    life: 22 + Math.random() * 12,
                     type: 'explosion'
                 });
             }
-
-            // 中心のフラッシュ
-            gameState.particles.push({
-                x, y, vx: 0, vy: 0,
-                color: '#fff', size: GRID_SIZE, life: 8,
-                type: 'flash'
-            });
-
-            // 複数リング
+            gameState.particles.push({ x, y, vx: 0, vy: 0, color: '#fff', size: GRID_SIZE, life: 8, type: 'flash' });
             for (let i = 0; i < 2; i++) {
                 gameState.particles.push({
                     x, y, vx: 0, vy: 0,
                     color: i === 0 ? color : '#ff0',
-                    size: 5, life: 20 - i * 5,
-                    type: 'ring', maxSize: GRID_SIZE * (2 + i)
+                    size: 5, life: 18 - i * 5,
+                    type: 'ring', maxSize: GRID_SIZE * (1.8 + i)
                 });
             }
         }
 
         function render() {
-            // 画面シェイク
             ctx.save();
             if (gameState.shake > 0) {
                 ctx.translate(
@@ -787,7 +1216,6 @@
             // タワーゾーン
             ctx.fillStyle = 'rgba(74,158,255,0.12)';
             ctx.fillRect(0, CONFIG.TOWER_ZONE_START * GRID_SIZE, canvas.width, (CONFIG.ROWS - CONFIG.TOWER_ZONE_START) * GRID_SIZE);
-
             ctx.strokeStyle = '#4a9eff';
             ctx.lineWidth = 2;
             ctx.setLineDash([5, 5]);
@@ -826,6 +1254,7 @@
             });
 
             // 敵
+            const now = Date.now();
             gameState.enemies.forEach(e => {
                 const bw = e.size * 1.5, hp = e.hp / e.maxHp;
                 ctx.fillStyle = '#333';
@@ -833,19 +1262,36 @@
                 ctx.fillStyle = hp > 0.5 ? '#4aff4a' : hp > 0.25 ? '#ffd700' : '#ff4a4a';
                 ctx.fillRect(e.x - bw / 2, e.y - e.size - 6, bw * hp, 3);
 
-                ctx.fillStyle = Date.now() < e.slowUntil ? '#4affff' : e.color;
+                // 燃焼エフェクト
+                if (now < e.burnUntil) {
+                    ctx.shadowColor = '#ff4400';
+                    ctx.shadowBlur = 10;
+                }
+
+                ctx.fillStyle = now < e.slowUntil ? '#4affff' : e.color;
+                ctx.globalAlpha = e.isGhost ? 0.5 : 1;
                 ctx.beginPath();
                 ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0;
 
                 ctx.fillStyle = '#fff';
                 ctx.beginPath();
                 ctx.arc(e.x - e.size * 0.3, e.y - e.size * 0.2, e.size * 0.15, 0, Math.PI * 2);
                 ctx.arc(e.x + e.size * 0.3, e.y - e.size * 0.2, e.size * 0.15, 0, Math.PI * 2);
                 ctx.fill();
+
+                // ヒーラーマーク
+                if (e.isHealer) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = `${e.size * 0.8}px sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText('+', e.x, e.y + e.size * 0.3);
+                }
             });
 
-            // レーザー描画
+            // レーザー
             gameState.lasers.forEach(l => {
                 const alpha = l.life / 8;
                 ctx.globalAlpha = alpha;
@@ -864,7 +1310,7 @@
             });
             ctx.globalAlpha = 1;
 
-            // チェイン（電撃）描画
+            // チェイン
             gameState.chains.forEach(c => {
                 const alpha = c.life / 12;
                 ctx.globalAlpha = alpha;
@@ -873,7 +1319,6 @@
                 ctx.shadowColor = c.color;
                 ctx.shadowBlur = 10;
                 ctx.beginPath();
-                // ジグザグ電撃
                 const dx = c.x2 - c.x1, dy = c.y2 - c.y1;
                 const dist = Math.sqrt(dx*dx + dy*dy);
                 const segments = Math.max(3, Math.floor(dist / 15));
@@ -890,9 +1335,23 @@
             });
             ctx.globalAlpha = 1;
 
-            // 弾（トレイル付き）
+            // 弾
             gameState.bullets.forEach(b => {
-                // ミサイルは特別描画
+                // モーター（放物線）
+                if (b.isMortar) {
+                    const t = b.progress / b.duration;
+                    const startX = b.x, startY = b.y;
+                    const midX = (startX + b.targetX) / 2;
+                    const midY = Math.min(startY, b.targetY) - 50;
+                    const currX = (1-t)*(1-t)*startX + 2*(1-t)*t*midX + t*t*b.targetX;
+                    const currY = (1-t)*(1-t)*startY + 2*(1-t)*t*midY + t*t*b.targetY;
+                    ctx.fillStyle = b.color;
+                    ctx.beginPath();
+                    ctx.arc(currX, currY, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    return;
+                }
+
                 if (b.isMissile) {
                     ctx.fillStyle = b.color;
                     ctx.beginPath();
@@ -904,7 +1363,15 @@
                     ctx.fill();
                     return;
                 }
-                // トレイル
+
+                if (b.isCannon) {
+                    ctx.fillStyle = b.color;
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, 7, 0, Math.PI * 2);
+                    ctx.fill();
+                    return;
+                }
+
                 if (b.vx !== undefined) {
                     ctx.globalAlpha = 0.3;
                     ctx.beginPath();
@@ -912,7 +1379,6 @@
                     ctx.fillStyle = b.color;
                     ctx.fill();
                 }
-                // メイン
                 ctx.globalAlpha = 1;
                 ctx.beginPath();
                 ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
@@ -924,13 +1390,12 @@
                 ctx.fill();
             });
 
-            // パーティクル（タイプ別描画）
+            // パーティクル
             gameState.particles.forEach(p => {
                 const alpha = Math.min(1, p.life / 15);
                 ctx.globalAlpha = alpha;
 
                 if (p.type === 'ring') {
-                    // 衝撃波リング
                     const progress = 1 - (p.life / 15);
                     const radius = p.size + (p.maxSize - p.size) * progress;
                     ctx.beginPath();
@@ -939,7 +1404,6 @@
                     ctx.lineWidth = 3 * alpha;
                     ctx.stroke();
                 } else if (p.type === 'flash') {
-                    // フラッシュ（中心の光）
                     const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
                     gradient.addColorStop(0, 'rgba(255,255,255,' + alpha + ')');
                     gradient.addColorStop(0.5, 'rgba(255,255,200,' + alpha * 0.5 + ')');
@@ -947,11 +1411,9 @@
                     ctx.fillStyle = gradient;
                     ctx.fillRect(p.x - p.size, p.y - p.size, p.size * 2, p.size * 2);
                 } else if (p.type === 'spark') {
-                    // 火花（小さくキラキラ）
                     ctx.fillStyle = p.color;
                     ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
                 } else {
-                    // 通常パーティクル（グロー付き）
                     ctx.shadowColor = p.color;
                     ctx.shadowBlur = 8;
                     ctx.beginPath();
@@ -973,7 +1435,7 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            ctx.restore(); // シェイク用のrestore
+            ctx.restore();
         }
 
         function updateUI() {
@@ -984,7 +1446,10 @@
             document.getElementById('kills').textContent = gameState.kills;
 
             document.querySelectorAll('.tower-btn').forEach(btn => {
-                btn.classList.toggle('disabled', gameState.gold < TOWER_TYPES[btn.dataset.tower].cost);
+                const wKey = btn.dataset.tower;
+                if (wKey && ALL_WEAPONS[wKey]) {
+                    btn.classList.toggle('disabled', gameState.gold < ALL_WEAPONS[wKey].cost);
+                }
             });
         }
 
@@ -1001,8 +1466,10 @@
         function restartGame() {
             gameState = initState();
             document.getElementById('game-over').style.display = 'none';
+            document.getElementById('weapon-select').style.display = 'none';
             document.getElementById('start-btn').disabled = false;
             document.getElementById('start-btn').textContent = '🚀 ウェーブ開始';
+            updateTowerPanel();
             updateUI();
             requestAnimationFrame(gameLoop);
         }
