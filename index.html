@@ -60,39 +60,39 @@
         #tower-panel {
             display: flex;
             justify-content: center;
-            gap: 6px;
-            padding: 10px 8px;
+            gap: 3px;
+            padding: 6px 4px;
             background: linear-gradient(180deg, rgba(20, 30, 50, 0.98) 0%, rgba(15, 25, 45, 0.99) 100%);
             flex-shrink: 0;
-            flex-wrap: wrap;
-            max-height: 90px;
-            overflow-y: auto;
+            flex-wrap: nowrap;
             border-top: 1px solid rgba(74, 158, 255, 0.15);
         }
         .tower-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 6px 8px;
+            padding: 4px 2px;
             border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            border-radius: 8px;
             background: linear-gradient(180deg, rgba(40, 50, 70, 0.8) 0%, rgba(25, 35, 55, 0.9) 100%);
             color: #eee;
             cursor: pointer;
-            min-width: 52px;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            width: calc(100% / 6 - 3px);
+            max-width: 70px;
+            min-width: 45px;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         }
-        .tower-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3); }
+        .tower-btn:hover { box-shadow: 0 3px 10px rgba(74, 158, 255, 0.3); }
         .tower-btn.selected {
             border-color: #4a9eff;
             background: linear-gradient(180deg, rgba(74, 100, 140, 0.9) 0%, rgba(50, 70, 110, 0.95) 100%);
-            box-shadow: 0 0 15px rgba(74, 158, 255, 0.5);
+            box-shadow: 0 0 12px rgba(74, 158, 255, 0.5);
         }
-        .tower-btn.disabled { opacity: 0.4; transform: none; }
-        .tower-icon { font-size: 18px; margin-bottom: 2px; }
-        .tower-name { font-size: 9px; font-weight: 600; letter-spacing: 0.5px; }
-        .tower-cost { font-size: 8px; color: #ffd700; font-weight: 500; }
+        .tower-btn.disabled { opacity: 0.4; }
+        .tower-icon { font-size: 16px; }
+        .tower-name { font-size: 8px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+        .tower-cost { font-size: 7px; color: #ffd700; font-weight: 500; }
         #wave-info {
             padding: 10px;
             background: linear-gradient(180deg, rgba(15, 25, 45, 0.99) 0%, rgba(10, 20, 40, 1) 100%);
@@ -153,15 +153,14 @@
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             background: linear-gradient(180deg, rgba(20, 30, 50, 0.98) 0%, rgba(10, 20, 40, 0.99) 100%);
-            padding: 25px;
-            border-radius: 16px;
+            padding: 15px;
+            border-radius: 14px;
             text-align: center;
             z-index: 200;
-            max-width: 90%;
-            max-height: 80%;
-            overflow-y: auto;
+            max-width: 95%;
+            width: 280px;
             border: 1px solid rgba(74, 158, 255, 0.3);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(20px);
         }
         #game-over h2, #weapon-select h2 { font-size: 22px; margin-bottom: 12px; font-weight: 700; }
@@ -182,44 +181,47 @@
             transition: all 0.2s ease;
         }
         #restart-btn:hover { transform: scale(1.05); }
-        #weapon-select h2 { color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+        #weapon-select h2 { color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); font-size: 16px; margin-bottom: 10px; }
         .weapon-choice {
             display: inline-flex;
             flex-direction: column;
             align-items: center;
-            padding: 10px 12px;
-            margin: 5px;
+            padding: 8px 6px;
             border: 2px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
+            border-radius: 10px;
             background: linear-gradient(180deg, rgba(50, 60, 80, 0.8) 0%, rgba(35, 45, 65, 0.9) 100%);
             cursor: pointer;
-            min-width: 60px;
+            min-width: 50px;
+            flex: 1;
+            max-width: 80px;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
         }
         .weapon-choice:hover {
             border-color: #4a9eff;
             background: linear-gradient(180deg, rgba(70, 90, 120, 0.9) 0%, rgba(50, 70, 100, 0.95) 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(74, 158, 255, 0.4);
+            box-shadow: 0 5px 15px rgba(74, 158, 255, 0.4);
         }
-        .weapon-choice .icon { font-size: 24px; margin-bottom: 4px; }
-        .weapon-choice .name { font-size: 10px; font-weight: 600; }
-        #weapon-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-        #inventory-info { margin-top: 12px; font-size: 12px; color: #aaa; }
-        #discard-section { margin-top: 18px; padding-top: 15px; border-top: 1px solid rgba(255, 74, 74, 0.3); }
-        #discard-section h3 { font-size: 13px; color: #ff6b6b; margin-bottom: 10px; }
+        .weapon-choice .icon { font-size: 20px; }
+        .weapon-choice .name { font-size: 9px; font-weight: 600; }
+        #weapon-choices { display: flex; flex-wrap: nowrap; justify-content: center; gap: 6px; }
+        #inventory-info { margin-top: 8px; font-size: 11px; color: #aaa; }
+        #discard-section { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 74, 74, 0.3); }
+        #discard-section h3 { font-size: 11px; color: #ff6b6b; margin-bottom: 6px; }
+        #discard-choices { display: flex; flex-wrap: nowrap; justify-content: center; gap: 4px; }
         .discard-btn {
-            display: inline-block;
-            padding: 8px 12px;
-            margin: 4px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4px 6px;
             border: 2px solid rgba(255, 74, 74, 0.5);
-            border-radius: 8px;
+            border-radius: 6px;
             background: linear-gradient(180deg, rgba(60, 30, 30, 0.8) 0%, rgba(40, 20, 20, 0.9) 100%);
             cursor: pointer;
-            font-size: 11px;
+            font-size: 9px;
             color: #eee;
             transition: all 0.2s ease;
+            min-width: 40px;
         }
         .discard-btn:hover { background: linear-gradient(180deg, rgba(80, 40, 40, 0.9) 0%, rgba(60, 30, 30, 0.95) 100%); border-color: #ff4a4a; }
         #tutorial {
@@ -298,7 +300,7 @@
             <p style="color:#ff6b6b; font-size: 13px;">⚠️ 手持ちは最大6種類まで</p>
         </div>
         <button id="start-game-btn">🚀 START</button>
-        <div style="position:absolute; bottom:15px; right:15px; font-size:11px; color:#555;">v3.1.0</div>
+        <div style="position:absolute; bottom:15px; right:15px; font-size:11px; color:#555;">v3.2.0</div>
     </div>
 
     <div id="app">
@@ -1070,8 +1072,7 @@
             // 1個の武器を表示
             const div = document.createElement('div');
             div.className = 'weapon-choice';
-            div.style.padding = '12px 20px';
-            div.innerHTML = `<div class="icon" style="font-size:28px">${w.icon}</div><div class="name" style="font-size:12px">${w.name}</div><div style="font-size:9px;color:#aaa;margin-top:3px">${w.desc}</div>`;
+            div.innerHTML = `<div class="icon">${w.icon}</div><div class="name">${w.name}</div>`;
             div.onclick = () => selectNewWeapon(weaponKey);
             choicesDiv.appendChild(div);
 
@@ -1083,7 +1084,7 @@
             skipBtn.onclick = () => closeWeaponSelect();
             choicesDiv.appendChild(skipBtn);
 
-            inventoryInfo.textContent = `現在の武器: ${gameState.unlockedWeapons.length}/${MAX_WEAPONS}`;
+            inventoryInfo.textContent = `武器: ${gameState.unlockedWeapons.length}/${MAX_WEAPONS}`;
             gameState.pendingWeaponChoice = weaponKey;
 
             // 武器が6個の場合、捨てる選択を表示
@@ -1092,10 +1093,10 @@
                 discardChoices.innerHTML = '';
                 gameState.unlockedWeapons.forEach(wKey => {
                     if (wKey === 'basic') return; // ベーシックは捨てられない
-                    const w = ALL_WEAPONS[wKey];
+                    const wd = ALL_WEAPONS[wKey];
                     const btn = document.createElement('div');
                     btn.className = 'discard-btn';
-                    btn.innerHTML = `${w.icon} ${w.name}`;
+                    btn.innerHTML = `<span style="font-size:14px">${wd.icon}</span>`;
                     btn.onclick = () => discardWeapon(wKey);
                     discardChoices.appendChild(btn);
                 });
